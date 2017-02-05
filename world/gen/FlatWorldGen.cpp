@@ -17,8 +17,8 @@ void FlatWorldGen::generate(vector<vector<Tile *>> &tiles, sf::Texture &world_ma
     const double WATER_CUTOFF = 0.4;
     const double MOUNTAIN_CUTOFF = 0.8;
 
-    for (unsigned int y = 0; y < WORLD_SIZE; y++) {
-        for (unsigned int x = 0; x < WORLD_SIZE; x++) {
+    for (unsigned int y = 0; y < WORLD_SIZE; ++y) {
+        for (unsigned int x = 0; x < WORLD_SIZE; ++x) {
             const Material *mat;
 
             double nx = (double)x/WORLD_SIZE - 0.5, ny = (double)y/WORLD_SIZE - 0.5;
@@ -49,16 +49,19 @@ void FlatWorldGen::generate(vector<vector<Tile *>> &tiles, sf::Texture &world_ma
             pixels[(x + y * WORLD_SIZE) * 4 + 2] = color.b;
             pixels[(x + y * WORLD_SIZE) * 4 + 3] = color.a;
 
+            //tiles[x][y] = new Tile(x, y, mat, "asdf");
+
             double part = (double) (x + y*WORLD_SIZE) / (WORLD_SIZE * WORLD_SIZE);
             int percent = (int)(part * 100);
             if (percent && percent % 10 == 0) {
-                cout << percent << endl;
+                //cout << percent << endl;
             }
         }
     }
-    m_biome.generate_regions(tiles);
-    g_biome.generate_regions(tiles);
-    w_biome.generate_regions(tiles);
+    cout << "done tiles\n";
+    m_biome.generate_tiles(tiles);
+    g_biome.generate_tiles(tiles);
+    w_biome.generate_tiles(tiles);
 
     world_map.update(pixels);
     delete [] pixels;

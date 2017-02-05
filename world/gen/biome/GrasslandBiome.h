@@ -10,6 +10,7 @@ class GrasslandBiome : public Biome {
 public:
     GrasslandBiome();
     const Material *get_tile(double e, double m);
+
 private:
     RandomGenerator rnd;
 };

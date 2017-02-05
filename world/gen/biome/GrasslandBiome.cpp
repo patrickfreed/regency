@@ -8,7 +8,7 @@ const Material *GrasslandBiome::get_tile(double e, double m) {
 
     int tree = rnd.next_int();
     if (tree < 5) {
-        cout << "tree on this tile!" << endl;
+        //cout << "tree on this tile!" << endl;
     }
 
     int grass = rnd.next_int();

@@ -9,7 +9,7 @@ class WaterBiome : public Biome {
 public:
     WaterBiome();
     const Material *get_tile(double e, double m);
-    //void generate_regions(vector<vector<Tile *>>& tiles);
+    string& get_region_name(Region& region);
 };
 
 

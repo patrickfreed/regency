@@ -13,12 +13,20 @@
 
 using namespace std;
 
-typedef pair<pair<unsigned int, unsigned int>, pair<double, double>> TileInfo;
+typedef pair<unsigned int, unsigned int> CoordinatePair;
+typedef pair<CoordinatePair, pair<double, double>> TileInfo;
 typedef vector<struct region *> Cluster;
+
 typedef struct region {
     vector<TileInfo> tile_info;
-    Cluster *parent;
+    string name;
 } Region;
+
+struct pair_hash {
+    inline std::size_t operator()(const CoordinatePair & v) const {
+        return v.first*31+v.second;
+    }
+};
 
 class Biome {
 private:
@@ -26,8 +34,8 @@ private:
     const pair<double, double> e_range;
     const pair<double, double> m_range;
 
-    unordered_map<string, Region *> coord_to_region;
-    unordered_map<string, pair<double, double>> tile_infos;
+    vector<unique_ptr<Region>> regs;
+    unordered_map<CoordinatePair, pair<double, double>, pair_hash> tile_infos;
 public:
     ~Biome();
     virtual const Material *get_tile(double e, double m) = 0;
@@ -36,7 +44,9 @@ public:
     const pair<double, double> get_moisture_range();
 
     void add_tile(unsigned int x, unsigned int y, double e, double m);
-    virtual void generate_regions(vector<vector<Tile *>>& tiles);
+    void generate_regions();
+    virtual string& get_region_name(Region& r);
+    virtual void generate_tiles(vector<vector<Tile *>>& tiles);
 protected:
     Biome(string name, double min_e, double max_e, double min_m, double max_m);
     unordered_set<Cluster *> regions;

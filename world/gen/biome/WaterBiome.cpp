@@ -9,6 +9,25 @@ const Material *WaterBiome::get_tile(double e, double m) {
     return &Material::SALT_WATER;
 }
 
+string &WaterBiome::get_region_name(Region &region) {
+    ostringstream r_name;
+    static int ocean = 0;
+    static int lake = 0;
+    static int pond = 0;
+
+    int size = region.tile_info.size();
+    if (size > 2500) {
+        r_name << "Ocean " << ++ocean;
+    } else if (size > 500) {
+        r_name << "Lake " << ++lake;
+    } else {
+        r_name << "Pond " << ++pond;
+    }
+    region.name = r_name.str();
+    return region.name;
+}
+
+
 /*void WaterBiome::generate_regions(vector<vector<Tile *>> &tiles) {
     unsigned int ocean = 0;
     unsigned int lake = 0;

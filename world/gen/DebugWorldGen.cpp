@@ -61,7 +61,7 @@ void DebugWorldGen::generate(vector<vector<Tile *>> &tiles, sf::Texture &world_m
             pixels[(x + y * WORLD_SIZE) * 4 + 3] = color.a;
         }
     }
-    g_biome.generate_regions(tiles);
+    g_biome.generate_regions();
 
     world_map.update(pixels);
     delete [] pixels;

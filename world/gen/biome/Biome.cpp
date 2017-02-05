@@ -16,175 +16,89 @@ const pair<double, double> Biome::get_moisture_range() {
     return this->m_range;
 }
 
-/*void add_tile(unsigned int x, unsigned int y, double e, double m) {
-    unsigned int start_x = x ? x - 1 : x;
-
-    TileInfo t_info(pair<unsigned int, unsigned int>(x, y), pair<double,double>(e, m));
-
-    ostringstream now_coords;
-    now_coords << x << "," << y;
-    unordered_set<Region *> neighboring_regions;
-    unordered_set<Cluster *> neighboring_clusters;
-
-    /*if (y) {
-        for (int xc = start_x; xc < x + 2; xc++) {
-            ostringstream coords;
-            coords << xc << "," << y - 1;
-
-            if (this->coord_to_region.count(coords.str())) {
-                Region *i = this->coord_to_region[coords.str()];
-
-                if (!neighboring_clusters.count(i->parent)) {
-                    neighboring_regions.insert(i);
-                    neighboring_clusters.insert(i->parent);
-                }
-            }
-        }
-    }
-
-    if (x) {
-        ostringstream coords;
-        coords << x - 1 << "," << y;
-
-        if (this->coord_to_region.count(coords.str())) {
-            Region *i = this->coord_to_region[coords.str()];
-            neighboring_regions.insert(i);
-        }
-    }
-
-    if (false && neighboring_regions.size() > 1) {
-        Cluster *a = new Cluster;
-        regions.insert(a);
-        unordered_set<Cluster *> clusters_to_free;
-
-        for (auto it = neighboring_regions.begin(); it != neighboring_regions.end(); ++it) {
-            clusters_to_free.insert((*it)->parent);
-            (*it)->parent = a;
-        }
-
-        for (auto c_it = clusters_to_free.begin(); c_it != clusters_to_free.end(); ++c_it) {
-            Cluster *cluster = *c_it;
-            for (auto it = cluster->begin(); it != cluster->end(); ++it) {
-                Region *r = *it;
-                r->parent = a;
-                a->push_back(r);
-            }
-            regions.erase(*c_it);
-            delete *c_it;
-        }
-
-        Region *r = new Region;
-        r->parent = a;
-        r->tile_info.push_back(t_info);
-        a->push_back(r);
-        this->coord_to_region[now_coords.str()] = r;
-    } else if (false && neighboring_regions.size() >= 1) {
-        Region *region = *(neighboring_regions.begin());
-        region->tile_info.push_back(t_info);
-        this->coord_to_region[now_coords.str()] = region;
-    } else if (false) {
-        Region *next_region = new Region;
-        Cluster *next_cluster = new Cluster;
-        next_region->tile_info.push_back(t_info);
-        next_region->parent = next_cluster;
-        next_cluster->push_back(next_region);
-        this->regions.insert(next_cluster);
-        this->coord_to_region[now_coords.str()] = next_region;
-    } else {
-        if (this->regions.size() == 0) {
-            Region *next_region = new Region;
-            Cluster *next_cluster = new Cluster;
-            next_region->tile_info.push_back(t_info);
-            next_region->parent = next_cluster;
-            next_cluster->push_back(next_region);
-            this->regions.insert(next_cluster);
-            this->coord_to_region[now_coords.str()] = next_region;
-        } else {
-            ((*(this->regions.begin()))[0])[0]->tile_info.push_back(t_info);
-        }
-    }
-}*/
-
 void Biome::add_tile(unsigned int x, unsigned int y, double e, double m) {
     ostringstream oss;
     oss << x << "," << y;
 
-    this->tile_infos[oss.str()] = make_pair(e, m);
+    this->tile_infos.insert(make_pair(make_pair(x, y), make_pair(e, m)));
 }
 
-void Biome::generate_regions(vector<vector<Tile *>> &tiles) {
-    unordered_set<string> coords;
+void Biome::generate_regions() {
+    cout << "starting region generation" << this->name << endl;
+
+    unordered_set<CoordinatePair, pair_hash> coords;
 
     for (auto it = this->tile_infos.begin(); it != this->tile_infos.end(); ++it) {
-        string coord = it->first;
+        CoordinatePair coord = it->first;
         coords.insert(coord);
     }
+    cout << "done coords set\n";
 
-    vector<vector<TileInfo>> regs;
     while (coords.size()) {
-        vector<TileInfo> region;
-        string root = *coords.begin();
-        unordered_set<string> to_check;
+        //vector<TileInfo> region;
+        unique_ptr<Region> region(new Region);
+        CoordinatePair root = *coords.begin();
+        unordered_set<CoordinatePair, pair_hash> to_check;
 
         to_check.insert(root);
         coords.erase(root);
 
         while (to_check.size()) {
-            string next = *(to_check.begin());
+            CoordinatePair next = *(to_check.begin());
 
-            stringstream iss;
-            char comma;
-            int x;
-            int y;
-
-            iss << next;
-            iss >> x >> comma >> y;
+            int x = next.first;
+            int y = next.second;
 
             to_check.erase(next);
-            region.push_back(make_pair(make_pair(x, y), tile_infos[next]));
+            region->tile_info.push_back(make_pair(make_pair(x, y), tile_infos[next]));
 
-            for (int xx = max(x - 1, 0); xx <= min(x + 1, WORLD_SIZE); xx++) {
-                for (int yy = max(y - 1, 0); yy <= min(y + 1, WORLD_SIZE); yy++) {
+            CoordinatePair check = make_pair(x, y);
+
+            for (unsigned int xx = max(x - 1, 0); xx <= min(x + 1, WORLD_SIZE); xx++) {
+                for (unsigned int yy = max(y - 1, 0); yy <= min(y + 1, WORLD_SIZE); yy++) {
                     if (xx == x && yy == y) continue;
-                    ostringstream oss;
-                    oss << xx << "," << yy;
 
-                    if (coords.count(oss.str())) {
-                        to_check.insert(oss.str());
-                        coords.erase(oss.str());
+                    check.first = xx;
+                    check.second = yy;
+
+                    if (coords.find(check) != coords.end()) {
+                        to_check.insert(check);
+                        coords.erase(check);
                     }
                 }
             }
         }
-        regs.push_back(region);
+
+        this->get_region_name(*region);
+        regs.push_back(move(region));
+    }
+    cout << "done region creation\n";
+}
+
+void Biome::generate_tiles(vector<vector<Tile *>> &tiles) {
+    if (!this->regions.size()) {
+        this->generate_regions();
     }
 
-    int c = 0;
+    cout << "starting tile generation for " << this->get_name() << "\n";
 
     for (auto it = regs.begin(); it != regs.end(); ++it) {
-        //Cluster *cluster = *it;
-        vector<TileInfo> region = *it;
-        c++;
+        Region& region = **it;
+        vector<TileInfo>& region_tiles = region.tile_info;
 
-       // for (auto c_it = cluster->begin(); c_it != cluster->end(); ++c_it) {
-            //Region *r = *c_it;
-            for (int t = 0; t < region.size(); t++) {
-                ostringstream r_name;
+        for (int t = 0; t < region_tiles.size(); t++) {
+            TileInfo t_info = region_tiles[t];
 
-                TileInfo t_info = region[t];
+            unsigned int x = t_info.first.first;
+            unsigned int y = t_info.first.second;
 
-                unsigned int x = t_info.first.first;
-                unsigned int y = t_info.first.second;
+            double e = t_info.second.first;
+            double m = t_info.second.second;
 
-                double e = t_info.second.first;
-                double m = t_info.second.second;
-
-                r_name << this->get_name() << " " << c;
-
-                tiles[x][y] = new Tile(x, y, this->get_tile(e, m), r_name.str());
-            }
-       //}
+            tiles[x][y] = new Tile(x, y, this->get_tile(e, m), region.name);
+       }
     }
+    cout << "done tile generation\n";
 }
 
 Biome::~Biome() {
@@ -194,4 +108,9 @@ Biome::~Biome() {
         }
         delete (*it);
     }
+}
+
+string& Biome::get_region_name(Region& region) {
+    region.name = this->get_name();
+    return region.name;
 }
