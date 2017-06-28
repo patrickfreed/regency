@@ -41,7 +41,7 @@ void DebugWorldGen::generate(vector<vector<Tile *>> &tiles, sf::Texture &world_m
                         if (tiles[ax][ay]) {
                             tiles[ax][ay]->set_material(mat);
                         } else {
-                            tiles[ax][ay] = new Tile(ax, ay, mat, "asdf");
+                            tiles[ax][ay] = new Tile(ax, ay, mat);
                         }
                     }
                 }

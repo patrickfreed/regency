@@ -74,7 +74,7 @@ void RadialIslandGen::generate(vector<vector<Tile *>> &tiles, sf::Texture& world
                     if (tiles[ax][ay]) {
                         tiles[ax][ay]->set_material(mat);
                     } else {
-                        tiles[ax][ay] = new Tile(ax, ay, mat, "");
+                        tiles[ax][ay] = new Tile(ax, ay, mat);
                     }
                 }
             }

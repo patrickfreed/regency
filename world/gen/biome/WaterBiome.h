@@ -9,7 +9,7 @@ class WaterBiome : public Biome {
 public:
     WaterBiome();
     const Material *get_tile(double e, double m);
-    string& get_region_name(Region& region);
+    std::string& get_region_name(Region& region);
 };
 
 

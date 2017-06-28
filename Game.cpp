@@ -8,7 +8,7 @@
 #include "Mouse.h"
 #include "Defines.h"
 
-Game::Game() : world(World("world_name_placeholder")) {
+Game::Game() : world("world_name_placeholder") {
 }
 
 void Game::start() {
@@ -45,7 +45,7 @@ void Game::tick() {
                 break;
             } else if (currentEvent.type == sf::Event::KeyPressed) {
                 if (currentEvent.key.code == sf::Keyboard::G) {
-                    cout << "regenerating...";
+                    std::cout << "regenerating...";
                     this->world.generate();
                 } else if (currentEvent.key.code == sf::Keyboard::Z) {
                     this->world.zoom(false);
@@ -58,7 +58,7 @@ void Game::tick() {
 
         sf::Vector2i mouse_coords = Mouse::get_mouse_position();
 
-        ostringstream builder;
+        std::ostringstream builder;
         builder << mouse_coords.x << ", " << mouse_coords.y;
         mouse_coords_text.setString(builder.str());
 
@@ -70,6 +70,6 @@ void Game::tick() {
     }
 }
 
-World Game::get_world() {
+World& Game::get_world() {
     return this->world;
 }

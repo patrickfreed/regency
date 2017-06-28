@@ -1,0 +1,33 @@
+==== need ====
+mountain -> identify peaks
+ocean -> traverse
+river
+lake
+forest
+plain/desert
+island/continent
+
+==== would be nice ====
+valley
+peninsula
+======================
+
+
+World generation steps:
+1. Use noise to generate tiles - elevation, material, etc. ACTUAL GENERATION HERE
+    - TODO: abstract world generation properties
+2. Use connected component labelling to discover components
+	- continents
+	- islands
+	- oceans
+3. Identify categories within components (ccl over similarity index)
+	- forests
+	- plains
+	- deserts
+	- mountains
+4. run rivers (????)
+================ TBD ===================
+5a. generate history
+	- choose settlements of antiquity
+	- simulate
+5b. choose settlements, generate relationships, generate populations

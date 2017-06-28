@@ -7,7 +7,7 @@
 
 class FlatWorldGen : public WorldGen {
 public:
-    virtual void generate(vector<vector<Tile *>>& tiles, sf::Texture& world_map);
+    virtual void generate(TileMap& tiles, sf::Texture& world_map);
 };
 
 

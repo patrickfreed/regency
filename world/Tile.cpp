@@ -3,12 +3,11 @@
 
 using namespace std;
 
-Tile::Tile(unsigned int x, unsigned int y, const Material *material, string region_name) : x(x), y(y), to_render(true) {
+Tile::Tile(unsigned int x, unsigned int y, const Material *material) : x(x), y(y), to_render(true) {
     this->z = 0;
     this->mat.resize(1);
     this->mat[z] = material;
     this->actor = nullptr;
-    this->region_name = region_name;
 }
 
 void Tile::render(sf::RenderWindow& window, int x, int y, int zoom_level) {
@@ -70,4 +69,8 @@ const Material *Tile::get_material() {
 
 string & Tile::get_region_name() {
     return this->region_name;
+}
+
+void Tile::set_region_name(const std::string &name) {
+    region_name = name;
 }

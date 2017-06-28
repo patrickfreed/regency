@@ -11,18 +11,17 @@
 #include <vector>
 #include <noise/module/perlin.h>
 #include "../Tile.h"
-
-using namespace std;
+#include "../../Defines.h"
 
 class WorldGen {
+public:
+    virtual void generate(TileMap& tiles, sf::Texture& world_map) = 0;
 protected:
+    //virtual double elevation(double nx, double ny) = 0;
+    double noise(double nx, double ny);
     WorldGen();
 private:
-    noise::module::Perlin gen;
-public:
-    virtual void generate(vector<vector<Tile *>>& tiles, sf::Texture& world_map) = 0;
-    double noise(double nx, double ny);
+    noise::module::Perlin _gen;
 };
-
 
 #endif //TEST_PROJECT_WORLDGEN_H

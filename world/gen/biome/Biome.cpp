@@ -4,39 +4,43 @@
 #include "Biome.h"
 #include "../../../Defines.h"
 
-Biome::Biome(string name, double min_e, double max_e, double min_m, double max_m) : e_range(min_e, max_e), m_range(min_m, max_m) {
+using namespace std;
+
+Biome::Biome(std::string name, double min_e, double max_e, double min_m, double max_m) : e_range(min_e, max_e), m_range(min_m, max_m) {
     this->name = name;
 }
 
-const pair<double, double> Biome::get_elevation_range() {
+const std::pair<double, double> Biome::get_elevation_range() {
     return this->e_range;
 }
 
-const pair<double, double> Biome::get_moisture_range() {
+const std::pair<double, double> Biome::get_moisture_range() {
     return this->m_range;
 }
 
 void Biome::add_tile(unsigned int x, unsigned int y, double e, double m) {
-    ostringstream oss;
+    std::ostringstream oss;
     oss << x << "," << y;
 
-    this->tile_infos.insert(make_pair(make_pair(x, y), make_pair(e, m)));
+    this->tile_infos.insert(std::make_pair(std::make_pair(x, y), std::make_pair(e, m)));
 }
 
 void Biome::generate_regions() {
-    cout << "starting region generation" << this->name << endl;
+    std::cout << "starting region generation" << this->name << std::endl;
 
-    unordered_set<CoordinatePair, pair_hash> coords;
+    std::unordered_set<CoordinatePair, pair_hash> coords;
+    int c = 0;
 
     for (auto it = this->tile_infos.begin(); it != this->tile_infos.end(); ++it) {
         CoordinatePair coord = it->first;
+        c++;
         coords.insert(coord);
     }
     cout << "done coords set\n";
 
     while (coords.size()) {
         //vector<TileInfo> region;
-        unique_ptr<Region> region(new Region);
+        std::unique_ptr<Region> region(new Region);
         CoordinatePair root = *coords.begin();
         unordered_set<CoordinatePair, pair_hash> to_check;
 
@@ -95,7 +99,7 @@ void Biome::generate_tiles(vector<vector<Tile *>> &tiles) {
             double e = t_info.second.first;
             double m = t_info.second.second;
 
-            tiles[x][y] = new Tile(x, y, this->get_tile(e, m), region.name);
+            tiles[x][y] = new Tile(x, y, this->get_tile(e, m));
        }
     }
     cout << "done tile generation\n";

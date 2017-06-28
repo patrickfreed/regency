@@ -8,20 +8,21 @@
 #include <map>
 #include <SFML/Graphics/Texture.hpp>
 
-using namespace std;
-
 class Material {
 private:
-    Material(std::string name, int id, sf::Color color);
+    Material(std::string name, int id, sf::Color color, bool water = false);
+
     std::string name;
     sf::Color color;
     sf::Texture texture;
     int tile_number;
+    bool _water;
 public:
-    std::string get_name();
+    const std::string& get_name();
     const sf::Color& get_color() const;
-    sf::Texture& get_texture();
+    const sf::Texture& get_texture();
     int get_tile_number() const;
+    bool is_solid() const;
 
     // Some types
     const static Material ROCK;

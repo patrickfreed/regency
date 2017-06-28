@@ -9,7 +9,7 @@ class Game {
 public:
     Game();
     void start();
-    World get_world();
+    World& get_world();
     static Game GameInstance;
 
 private:

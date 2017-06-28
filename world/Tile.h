@@ -20,21 +20,23 @@ private:
 
     void get_bounds(sf::RectangleShape& bounds_in);
 
-    vector<const Material *> mat;
+    std::vector<const Material *> mat;
     Actor *actor;
-    string region_name;
+    std::string region_name;
     // other stuff...
 public:
-    Tile(unsigned int x, unsigned int y, const Material *material, string region_name);
+    Tile(unsigned int x, unsigned int y, const Material *material);
 
     void set_material(const Material *material);
     const Material *get_material();
 
     void render(sf::RenderWindow& window, int x, int y, int zoom_level);
+
     void set_actor(Actor *actor);
     Actor *get_actor();
 
-    string& get_region_name();
+    std::string& get_region_name();
+    void set_region_name(const std::string& name);
 
     void tick();
 };
