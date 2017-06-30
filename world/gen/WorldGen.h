@@ -17,10 +17,13 @@ class WorldGen {
 public:
     virtual void generate(TileMap& tiles, sf::Texture& world_map) = 0;
 protected:
+    WorldGen();
+
     //virtual double elevation(double nx, double ny) = 0;
     double noise(double nx, double ny);
-    WorldGen();
+    double m_noise(double nx, double ny);
 private:
+    noise::module::Perlin _moisture;
     noise::module::Perlin _gen;
 };
 

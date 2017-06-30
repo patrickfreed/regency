@@ -1,0 +1,65 @@
+// StandardWorldGen.json
+// WIP idea for how world generators could be stored
+
+{
+    "name": "Standard",
+    "water_level": 0.2,
+    "moisture": [],
+    "elevation": [],
+    "regions" : [
+        {
+            "name": "Continent",
+            "type": "landmass",
+            "min_size": 10000
+        },
+        {
+            "name": "Island",
+            "type": "landmass",
+            "min_size": 0
+        },
+        {
+            "name": "Ocean",
+            "type": "body_of_water",
+            "min_size": 10000,
+            "names": "oceans.txt"
+        }
+    ],
+    "subregions": [
+        {
+            "name": "Desert",
+            "parents": ["Continent"],
+            "min_size": 25,
+            "e_range": [0, 1],
+            "m_range":[0.0, 0.2],
+            "materials": [
+                { "material": "SAND", "range": [0.0, 0.15] },
+                { "material": "SANDY_SOIL", "range": [0.15, 0.2] }
+            ]
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

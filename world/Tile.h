@@ -15,6 +15,10 @@ private:
     unsigned int y;
     unsigned int z; //ground floor height
 
+    // Values used from generation
+    double _e;
+    double _m;
+
     bool pass_actor;
     bool to_render;
 
@@ -22,10 +26,11 @@ private:
 
     std::vector<const Material *> mat;
     Actor *actor;
+
     std::string region_name;
-    // other stuff...
+    std::string _subregion_name;
 public:
-    Tile(unsigned int x, unsigned int y, const Material *material);
+    Tile(unsigned int x, unsigned int y, const Material *material, double e, double m);
 
     void set_material(const Material *material);
     const Material *get_material();
@@ -38,7 +43,13 @@ public:
     std::string& get_region_name();
     void set_region_name(const std::string& name);
 
+    const std::string& get_subregion_name() const;
+    void set_subregion_name(const std::string& name);
+
     void tick();
+
+    double get_moisture();
+    double get_elevation();
 };
 
 

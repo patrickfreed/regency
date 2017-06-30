@@ -8,11 +8,8 @@
 
 class GrasslandBiome : public Biome {
 public:
-    GrasslandBiome();
-    const Material *get_tile(double e, double m);
-
-private:
-    RandomGenerator rnd;
+    GrasslandBiome(double, double, double, double);
+    virtual void generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap& tiles);
 };
 
 

@@ -12,8 +12,8 @@ void DisjointSet::make_set(int id) {
 }
 
 void DisjointSet::union_elements(int x, int y) {
-    Entry& x_root = find(x);
-    Entry& y_root = find(y);
+    Entry &x_root = find(x);
+    Entry &y_root = find(y);
 
     if (x_root.id == y_root.id) {
         return;
@@ -29,8 +29,8 @@ void DisjointSet::union_elements(int x, int y) {
     }
 }
 
-Entry& DisjointSet::find(int x) {
-    Entry& x_entry = _data[x];
+Entry &DisjointSet::find(int x) {
+    Entry &x_entry = _data[x];
 
     if (x_entry.parent != x) {
         x_entry.parent = find(x_entry.parent).id;
@@ -40,16 +40,19 @@ Entry& DisjointSet::find(int x) {
 }
 
 std::unordered_map<int, std::unordered_set<int>> DisjointSet::get_sets() {
-    std::vector<std::unordered_set<int>> sets;
     std::unordered_map<int, std::unordered_set<int>> mapped_sets;
 
     for (auto i : _data) {
         mapped_sets[find(i.first).id].insert(i.first);
     }
 
-    //for (auto i : mapped_sets) {
-    //    sets.push_back(i.second);
-    //}
-
     return std::move(mapped_sets);
+}
+
+bool DisjointSet::contains(int id) {
+    return _data.count(id) > 0;
+}
+
+int DisjointSet::size() {
+    return _data.size();
 }

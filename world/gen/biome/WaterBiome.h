@@ -7,9 +7,8 @@
 
 class WaterBiome : public Biome {
 public:
-    WaterBiome();
-    const Material *get_tile(double e, double m);
-    std::string& get_region_name(Region& region);
+    WaterBiome(double, double, double, double);
+    virtual void generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap& tiles);
 };
 
 

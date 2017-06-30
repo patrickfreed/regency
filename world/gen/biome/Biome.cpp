@@ -1,120 +1,84 @@
 
-#include <sstream>
-#include <iostream>
 #include "Biome.h"
-#include "../../../Defines.h"
+#include "../RandomGenerator.h"
 
-using namespace std;
+#include <iostream>
+#include <sstream>
 
-Biome::Biome(std::string name, double min_e, double max_e, double min_m, double max_m) : e_range(min_e, max_e), m_range(min_m, max_m) {
-    this->name = name;
-}
+Biome::Biome(std::string name, double min_e, double max_e, double min_m, double max_m)
+    : _e_range(min_e, max_e), _m_range(min_m, max_m), _ds(), name(name), _rnd(1, 100) {}
 
 const std::pair<double, double> Biome::get_elevation_range() {
-    return this->e_range;
+    return _e_range;
 }
 
 const std::pair<double, double> Biome::get_moisture_range() {
-    return this->m_range;
+    return _m_range;
 }
 
-void Biome::add_tile(unsigned int x, unsigned int y, double e, double m) {
-    std::ostringstream oss;
-    oss << x << "," << y;
+void Biome::add_tile(unsigned int x, unsigned int y, double e, double m, TileMap &tiles) {
+    int id = x + y * WORLD_SIZE;
 
-    this->tile_infos.insert(std::make_pair(std::make_pair(x, y), std::make_pair(e, m)));
-}
+    _ds.make_set(id);
 
-void Biome::generate_regions() {
-    std::cout << "starting region generation" << this->name << std::endl;
+    int xm1 = x - 1 + y * WORLD_SIZE;
+    int ym1 = x + (y - 1) * WORLD_SIZE;
 
-    std::unordered_set<CoordinatePair, pair_hash> coords;
-    int c = 0;
+    bool contains_xm1 = _ds.contains(xm1);
+    bool contains_ym1 = _ds.contains(ym1);
 
-    for (auto it = this->tile_infos.begin(); it != this->tile_infos.end(); ++it) {
-        CoordinatePair coord = it->first;
-        c++;
-        coords.insert(coord);
+    if (contains_xm1 && contains_ym1) {
+        _ds.union_elements(ym1, xm1);
+        _ds.union_elements(xm1, id);
+    } else if (contains_xm1) {
+        _ds.union_elements(id, xm1);
+    } else if (contains_ym1) {
+        _ds.union_elements(id, ym1);
     }
-    cout << "done coords set\n";
 
-    while (coords.size()) {
-        //vector<TileInfo> region;
-        std::unique_ptr<Region> region(new Region);
-        CoordinatePair root = *coords.begin();
-        unordered_set<CoordinatePair, pair_hash> to_check;
+    generate_tile(x, y, e, m, tiles);
+}
 
-        to_check.insert(root);
-        coords.erase(root);
+void Biome::generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap &tiles) {
+    std::vector<MaterialDefinition> options;
+    for (auto &mat_def : _materials) {
+        auto &e_range = mat_def.e_range;
+        auto &m_range = mat_def.m_range;
 
-        while (to_check.size()) {
-            CoordinatePair next = *(to_check.begin());
-
-            int x = next.first;
-            int y = next.second;
-
-            to_check.erase(next);
-            region->tile_info.push_back(make_pair(make_pair(x, y), tile_infos[next]));
-
-            CoordinatePair check = make_pair(x, y);
-
-            for (unsigned int xx = max(x - 1, 0); xx <= min(x + 1, WORLD_SIZE); xx++) {
-                for (unsigned int yy = max(y - 1, 0); yy <= min(y + 1, WORLD_SIZE); yy++) {
-                    if (xx == x && yy == y) continue;
-
-                    check.first = xx;
-                    check.second = yy;
-
-                    if (coords.find(check) != coords.end()) {
-                        to_check.insert(check);
-                        coords.erase(check);
-                    }
-                }
-            }
+        if (e > e_range.first && e < e_range.second && m > m_range.first && m < m_range.second) {
+            options.push_back(mat_def);
         }
-
-        this->get_region_name(*region);
-        regs.push_back(move(region));
     }
-    cout << "done region creation\n";
+
+    int chosen = static_cast<int>((double)_rnd.next_int() / 100.0 * (double)(options.size() - 1));
+    tiles[x].insert(tiles[x].begin() + y,
+                    std::move(std::make_unique<Tile>(x, y, options[chosen].material, e, m)));
 }
 
-void Biome::generate_tiles(vector<vector<Tile *>> &tiles) {
-    if (!this->regions.size()) {
-        this->generate_regions();
-    }
+void Biome::name_regions(TileMap &tiles) {
+    std::cout << "starting tile generation for " << this->get_name() << std::endl;
 
-    cout << "starting tile generation for " << this->get_name() << "\n";
+    int count = 1;
 
-    for (auto it = regs.begin(); it != regs.end(); ++it) {
-        Region& region = **it;
-        vector<TileInfo>& region_tiles = region.tile_info;
+    for (auto pair : _ds.get_sets()) {
+        for (auto i : pair.second) {
+            int x = i % WORLD_SIZE;
+            int y = i / WORLD_SIZE;
 
-        for (int t = 0; t < region_tiles.size(); t++) {
-            TileInfo t_info = region_tiles[t];
-
-            unsigned int x = t_info.first.first;
-            unsigned int y = t_info.first.second;
-
-            double e = t_info.second.first;
-            double m = t_info.second.second;
-
-            tiles[x][y] = new Tile(x, y, this->get_tile(e, m));
-       }
-    }
-    cout << "done tile generation\n";
-}
-
-Biome::~Biome() {
-    for (auto it = this->regions.begin(); it != regions.end(); ++it) {
-        for (auto r = (*it)->begin(); r != (*it)->end(); ++r) {
-            delete (*r);
+            tiles[x][y]->set_subregion_name(get_name() + std::to_string(count));
         }
-        delete (*it);
+        count++;
     }
+
+    std::cout << "done tile generation" << std::endl;
 }
 
-string& Biome::get_region_name(Region& region) {
-    region.name = this->get_name();
-    return region.name;
+bool Biome::contains(double e, double m) {
+    return e >= _e_range.first && e <= _e_range.second && m >= _m_range.first &&
+           m <= _m_range.second;
+}
+
+void Biome::insert_into_world(
+    unsigned int x, unsigned int y, double e, double m, const Material *mat, TileMap &tiles) {
+    tiles[x].insert(tiles[x].begin() + y, std::move(std::make_unique<Tile>(x, y, mat, e, m)));
 }

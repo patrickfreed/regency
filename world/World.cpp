@@ -1,15 +1,15 @@
 #include "World.h"
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <SFML/Graphics/Text.hpp>
 
-#include "../entity/HumanActor.h"
-#include "../Mouse.h"
 #include "../Assets.h"
+#include "../Mouse.h"
+#include "../entity/HumanActor.h"
 #include "gen/FlatWorldGen.h"
 
 World::World(std::string name) : name(name), tiles() {
@@ -48,10 +48,8 @@ double World::noise(double nx, double ny) {
     return gen.GetValue(nx, ny, 0.0) / 2.0 + 0.5;
 }
 
-void World::generate() {
-    FlatWorldGen world_gen;
-    world_gen.generate(this->tiles, this->world_map);
-    int x;
+void World::generate(WorldGen &generator) {
+    generator.generate(tiles, world_map);
 }
 
 /*
@@ -147,11 +145,11 @@ void generate_old() {
     delete [] pixels;
 }
 */
-string& World::get_name() {
+string &World::get_name() {
     return this->name;
 }
 
-void World::render(sf::RenderWindow& window) {
+void World::render(sf::RenderWindow &window) {
     if (zoom_level == 1) {
         for (int x = 0; x < min(WINDOW_SIZE / tile_size, WORLD_SIZE); x++) {
             for (int y = 0; y < min(WINDOW_SIZE / tile_size, WORLD_SIZE); y++) {
@@ -171,20 +169,26 @@ void World::render(sf::RenderWindow& window) {
                 q[3].texCoords = sf::Vector2f(tu * tile_size, (tv + 1) * tile_size);
             }
         }
-
         window.draw(this->tile_map, &this->texture);
 
-        sf::Vector2i mouse = Mouse::get_mouse_position();
-        const std::unique_ptr<Tile>& hover = this->get_hovered_tile();
+        const std::unique_ptr<Tile> &hover = this->get_hovered_tile();
         if (hover) {
             sf::Text region_name_text;
             region_name_text.setFont(Assets::font);
             region_name_text.setString(hover->get_region_name());
-            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover->get_region_name().length() * 10), 20);
+            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover->get_region_name().length() * 10),
+                                         20);
             region_name_text.setOutlineColor(sf::Color::Black);
             region_name_text.setOutlineThickness(2.5);
             window.draw(region_name_text);
+
+            region_name_text.setPosition(
+                WINDOW_SIZE / 2 - (hover->get_subregion_name().length() * 10), 55);
+            region_name_text.setCharacterSize(25);
+            region_name_text.setString(hover->get_subregion_name());
+            window.draw(region_name_text);
         }
+
         /*for (int x = 0; x < WINDOW_SIZE / tile_size; x++) {
             for (int y = 0; y < WINDOW_SIZE / tile_size; y++) {
                 int xx = x + pos.left / tile_size;
@@ -198,7 +202,7 @@ void World::render(sf::RenderWindow& window) {
             }
         }*/
     } else {
-        //this->sprite.scale(1.0f, 1.0f);
+        // this->sprite.scale(1.0f, 1.0f);
         window.draw(this->sprite);
     }
 }
@@ -207,8 +211,8 @@ bool World::move(int x, int y, World::Direction d) {
     int xdiff = d == WEST ? -1 : (d == EAST ? 1 : 0);
     int ydiff = d == NORTH ? -1 : (d == SOUTH ? 1 : 0);
 
-    std::unique_ptr<Tile>& a = this->tiles[x][y];
-    std::unique_ptr<Tile>& aa = this->tiles[x + xdiff][y + ydiff];
+    std::unique_ptr<Tile> &a = this->tiles[x][y];
+    std::unique_ptr<Tile> &aa = this->tiles[x + xdiff][y + ydiff];
 
     if (a->get_actor() && !(aa->get_actor())) {
         aa->set_actor(a->get_actor());
@@ -238,7 +242,7 @@ void World::tick() {
             pos.x += 10;
         }
     }
-    //this->sprite.setTextureRect(sf::IntRect(left, top, RENDER_SIZE * 10, RENDER_SIZE * 10));
+    // this->sprite.setTextureRect(sf::IntRect(left, top, RENDER_SIZE * 10, RENDER_SIZE * 10));
 
     /*for (int x = 0; x < WORLD_SIZE; x++) {
         for (int y = 0; y < WORLD_SIZE; y++) {
@@ -279,10 +283,12 @@ void World::zoom(bool in) {
     }
 }
 
-const std::unique_ptr<Tile>& World::get_hovered_tile() {
+const std::unique_ptr<Tile> &World::get_hovered_tile() {
     sf::Vector2i mouse_pos = Mouse::get_mouse_position();
 
-    if (zoom_level != 1 || mouse_pos.x < 0 || mouse_pos.x >= min(tile_size*WORLD_SIZE, WINDOW_SIZE) || mouse_pos.y < 0 || mouse_pos.y >= min(tile_size*WORLD_SIZE, WINDOW_SIZE)) {
+    if (zoom_level != 1 || mouse_pos.x < 0 ||
+        mouse_pos.x >= min(tile_size * WORLD_SIZE, WINDOW_SIZE) || mouse_pos.y < 0 ||
+        mouse_pos.y >= min(tile_size * WORLD_SIZE, WINDOW_SIZE)) {
         return tiles[0][0];
     }
 

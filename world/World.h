@@ -12,6 +12,7 @@
 
 #include "Tile.h"
 #include "../Defines.h"
+#include "gen/WorldGen.h"
 
 class World {
 private:
@@ -39,7 +40,7 @@ public:
 
     std::string& get_name();
 
-    void generate();
+    void generate(WorldGen& generator);
 
     void render(sf::RenderWindow& window);
 

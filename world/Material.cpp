@@ -1,22 +1,23 @@
-#include <iostream>
 #include "Material.h"
+#include <iostream>
 
-Material::Material(std::string name, int id, sf::Color c, bool water) : name(name), color(c), texture(), _water(water) {
+Material::Material(std::string name, int id, sf::Color c, bool water)
+    : name(name), color(c), texture(), _water(water) {
     /* if (!texture.loadFromFile("../res/material_" + name + ".png")) {
         cout << "failed to load texture for " << name << endl;
     }*/
     this->tile_number = id;
 }
 
-const std::string& Material::get_name() {
+const std::string &Material::get_name() {
     return this->name;
 }
 
-const sf::Color& Material::get_color() const {
+const sf::Color &Material::get_color() const {
     return this->color;
 }
 
-const sf::Texture& Material::get_texture() {
+const sf::Texture &Material::get_texture() {
     return (this->texture);
 }
 
@@ -30,7 +31,7 @@ bool Material::is_solid() const {
 
 // Grasses
 const Material Material::NORTHERN_TURF("northern_turf", 1, sf::Color::Green);
-const Material Material::BLUEGRASS("bluegrass", 2, sf::Color::Green);
+const Material Material::BLUEGRASS("bluegrass", 2, sf::Color(0, 125, 0));
 const Material Material::FESCUE("fescue", 3, sf::Color::Green);
 const Material Material::RYEGRASS("ryegrass", 4, sf::Color::Green);
 

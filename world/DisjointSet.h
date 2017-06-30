@@ -20,6 +20,10 @@ public:
 
     Entry& find(int);
 
+    bool contains(int);
+
+    int size();
+
     std::unordered_map<int, std::unordered_set<int>> get_sets();
 private:
     std::unordered_map<int, Entry> _data;

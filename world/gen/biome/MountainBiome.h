@@ -7,8 +7,8 @@
 
 class MountainBiome : public Biome {
 public:
-    MountainBiome();
-    virtual const Material *get_tile(double e, double m);
+    MountainBiome(double, double, double, double);
+    virtual void generate_tile(unsigned int, unsigned int, double e, double m, TileMap&);
 };
 
 

@@ -1,25 +1,46 @@
-#include <cstdlib>
-#include <iostream>
-#include <unistd.h>
-#include <chrono>
-#include <thread>
-#include <sstream>
 #include "Game.h"
 #include "Mouse.h"
-#include "Defines.h"
+#include "world/gen/StandardWorldGen.h"
+#include "world/gen/biome/DesertBiome.h"
+#include "world/gen/biome/GrasslandBiome.h"
+#include "world/gen/biome/MountainBiome.h"
+#include "world/gen/biome/WaterBiome.h"
 
-Game::Game() : world("world_name_placeholder") {
-}
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <thread>
+
+Game::Game() : world("world_name_placeholder") {}
 
 void Game::start() {
-    _main_window.create(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE, 32), "Midget Castle");
+    _main_window.create(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE, 32), "Regency");
     _main_window.setFramerateLimit(60);
     Mouse::set_window(_main_window);
 
     // load assets here - for now just Material colors (not textures...)
     // Material::load_colors();
 
-    this->world.generate();
+    StandardWorldGen generator{"basic", DEFAULT_WATER_LEVEL};
+
+    std::unique_ptr<GrasslandBiome> grassland =
+        std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
+
+    std::unique_ptr<WaterBiome> water =
+        std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
+
+    std::unique_ptr<MountainBiome> mountain = std::make_unique<MountainBiome>(0.8, 1.0, 0.0, 1.0);
+
+    std::unique_ptr<DesertBiome> desert =
+        std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.2);
+
+    generator.add_biome(std::move(grassland));
+    generator.add_biome(std::move(water));
+    generator.add_biome(std::move(mountain));
+    generator.add_biome(std::move(desert));
+
+    world.generate(generator);
+
     Game::tick();
 }
 
@@ -32,11 +53,11 @@ void Game::tick() {
 
     sf::Text mouse_coords_text;
     mouse_coords_text.setFont(font);
-    //mouse_coords_text.setFillColor(sf::Color::White);
-    //mouse_coords_text.setCharacterSize(10);
+    // mouse_coords_text.setFillColor(sf::Color::White);
+    // mouse_coords_text.setCharacterSize(10);
     mouse_coords_text.setPosition(10, 10);
 
-    while(_main_window.isOpen()) {
+    while (_main_window.isOpen()) {
         _main_window.clear(sf::Color(255, 0, 0));
 
         if (_main_window.pollEvent(currentEvent)) {
@@ -46,7 +67,7 @@ void Game::tick() {
             } else if (currentEvent.type == sf::Event::KeyPressed) {
                 if (currentEvent.key.code == sf::Keyboard::G) {
                     std::cout << "regenerating...";
-                    this->world.generate();
+
                 } else if (currentEvent.key.code == sf::Keyboard::Z) {
                     this->world.zoom(false);
                 }
@@ -65,11 +86,9 @@ void Game::tick() {
         _main_window.draw(mouse_coords_text);
 
         _main_window.display();
-
-        //sleep(1);
     }
 }
 
-World& Game::get_world() {
+World &Game::get_world() {
     return this->world;
 }

@@ -1,16 +1,19 @@
-#include <iostream>
+#include "Tile.h"
 #include "../entity/Actor.h"
+
+#include <iostream>
 
 using namespace std;
 
-Tile::Tile(unsigned int x, unsigned int y, const Material *material) : x(x), y(y), to_render(true) {
-    this->z = 0;
-    this->mat.resize(1);
-    this->mat[z] = material;
-    this->actor = nullptr;
+Tile::Tile(unsigned int x, unsigned int y, const Material *material, double e, double m)
+    : x(x), y(y), _e(e), _m(m), to_render(true) {
+    z = 0;
+    mat.resize(1);
+    mat[z] = material;
+    actor = nullptr;
 }
 
-void Tile::render(sf::RenderWindow& window, int x, int y, int zoom_level) {
+void Tile::render(sf::RenderWindow &window, int x, int y, int zoom_level) {
     // if (zoom_level == prev_zoom_level && !to_render) return;
 
     // to_render = false;
@@ -44,7 +47,7 @@ Actor *Tile::get_actor() {
 }
 
 void Tile::tick() {
-    //long bounds_size = sizeof(this->bounds);
+    // long bounds_size = sizeof(this->bounds);
 
     if (this->actor && !this->pass_actor) {
         this->actor->tick();
@@ -57,8 +60,7 @@ void Tile::set_material(const Material *material) {
     this->mat[this->z] = material;
 }
 
-void Tile::get_bounds(sf::RectangleShape& bounds) {
-    const Material *material = this->mat[z];
+void Tile::get_bounds(sf::RectangleShape &bounds) {
     bounds.setSize(sf::Vector2f(TILE_SIZE, TILE_SIZE));
     bounds.setPosition(x * TILE_SIZE, y * TILE_SIZE);
 }
@@ -67,10 +69,26 @@ const Material *Tile::get_material() {
     return this->mat[z];
 }
 
-string & Tile::get_region_name() {
+string &Tile::get_region_name() {
     return this->region_name;
 }
 
 void Tile::set_region_name(const std::string &name) {
     region_name = name;
+}
+
+void Tile::set_subregion_name(const std::string &name) {
+    _subregion_name = name;
+}
+
+double Tile::get_moisture() {
+    return _m;
+}
+
+double Tile::get_elevation() {
+    return _e;
+}
+
+const std::string &Tile::get_subregion_name() const {
+    return _subregion_name;
 }
