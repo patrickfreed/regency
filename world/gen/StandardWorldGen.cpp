@@ -16,8 +16,7 @@ void StandardWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
 
             // TODO: make this configurable
             double e = noise(nx * 2.0, ny * 2.0);
-            double m = 0.5 * m_noise(1 * nx, 1 * ny) + 0.25 * m_noise(2 * nx, 2 * ny) +
-                       0.25 * m_noise(4 * nx, 2 * ny);
+            double m = 0.5 * m_noise(nx * 2.0, ny * 2.0) + 0.25 * m_noise(nx * 4.0, ny * 4.0);
 
             bool inserted = false;
             for (auto &biome : _subregions) {
@@ -79,7 +78,6 @@ void StandardWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
         }
     }
 
-    std::cout << "done generation." << std::endl;
     std::cout << "identifying regions..." << std::endl;
 
     auto regions = ds.get_sets();
@@ -124,7 +122,6 @@ void StandardWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
             t->set_region_name(oss.str());
         }
     }
-    std::cout << "done regions" << std::endl;
 
     world_map.update(pixels);
 

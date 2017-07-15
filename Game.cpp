@@ -13,6 +13,28 @@
 
 Game::Game() : world("world_name_placeholder") {}
 
+StandardWorldGen get_default_gen() {
+    StandardWorldGen generator{"basic", DEFAULT_WATER_LEVEL};
+
+    std::unique_ptr<GrasslandBiome> grassland =
+            std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
+
+    std::unique_ptr<WaterBiome> water =
+            std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
+
+    std::unique_ptr<MountainBiome> mountain = std::make_unique<MountainBiome>(0.8, 1.0, 0.0, 1.0);
+
+    std::unique_ptr<DesertBiome> desert =
+            std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.4);
+
+    generator.add_biome(std::move(grassland));
+    generator.add_biome(std::move(water));
+    generator.add_biome(std::move(mountain));
+    generator.add_biome(std::move(desert));
+
+    return generator;
+}
+
 void Game::start() {
     _main_window.create(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE, 32), "Regency");
     _main_window.setFramerateLimit(60);
@@ -21,25 +43,9 @@ void Game::start() {
     // load assets here - for now just Material colors (not textures...)
     // Material::load_colors();
 
-    StandardWorldGen generator{"basic", DEFAULT_WATER_LEVEL};
 
-    std::unique_ptr<GrasslandBiome> grassland =
-        std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
-
-    std::unique_ptr<WaterBiome> water =
-        std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
-
-    std::unique_ptr<MountainBiome> mountain = std::make_unique<MountainBiome>(0.8, 1.0, 0.0, 1.0);
-
-    std::unique_ptr<DesertBiome> desert =
-        std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.2);
-
-    generator.add_biome(std::move(grassland));
-    generator.add_biome(std::move(water));
-    generator.add_biome(std::move(mountain));
-    generator.add_biome(std::move(desert));
-
-    world.generate(generator);
+    StandardWorldGen g = get_default_gen();
+    world.generate(g);
 
     Game::tick();
 }
@@ -62,14 +68,14 @@ void Game::tick() {
 
         if (_main_window.pollEvent(currentEvent)) {
             if (currentEvent.type == sf::Event::Closed) {
-                std::cout << "Bye!" << std::endl;
                 break;
             } else if (currentEvent.type == sf::Event::KeyPressed) {
                 if (currentEvent.key.code == sf::Keyboard::G) {
                     std::cout << "regenerating...";
-
+                    StandardWorldGen g = get_default_gen();
+                    world.generate(g);
                 } else if (currentEvent.key.code == sf::Keyboard::Z) {
-                    this->world.zoom(false);
+                    world.zoom();
                 }
             }
         }
@@ -83,7 +89,7 @@ void Game::tick() {
         builder << mouse_coords.x << ", " << mouse_coords.y;
         mouse_coords_text.setString(builder.str());
 
-        _main_window.draw(mouse_coords_text);
+        // _main_window.draw(mouse_coords_text);
 
         _main_window.display();
     }

@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.6)
-project(test_project)
+project(regency)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS -Wall)
+
+set(NAME regency)
 
 set(SOURCE_FILES
         main.cpp
@@ -56,15 +57,15 @@ set(SOURCE_FILES
         world/gen/StandardWorldGen.cpp
         world/gen/StandardWorldGen.h)
 
-add_executable(test_project ${SOURCE_FILES})
+add_executable(${NAME} ${SOURCE_FILES})
 
-set(CMAKE_MODULE_PATH "/usr/local/cmake_modules" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "/lib/cmake_modules" ${CMAKE_MODULE_PATH})
 
 find_package(SFML 2 REQUIRED system window graphics network audio)
 if(SFML_FOUND)
     include_directories(${SFML_INCLUDE_DIR})
-    target_link_libraries(test_project ${SFML_LIBRARIES})
+    target_link_libraries(${NAME} ${SFML_LIBRARIES})
 endif()
 
-include_directories("/usr/local/include/noise")
-target_link_libraries(test_project libnoise)
+include_directories(${NAME} "C:/Program\ Files\ (x86)/libnoise/include/")
+target_link_libraries(${NAME} "C:/Program\ Files\ (x86)/libnoise/lib/libnoise.a")

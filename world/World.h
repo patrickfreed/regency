@@ -14,13 +14,16 @@
 #include "../Defines.h"
 #include "gen/WorldGen.h"
 
+#define ZOOM_INVALID -1
+#define ZOOM_GLOBAL 1
+#define ZOOM_LOCAL 2
+
 class World {
 private:
     std::string name;
     TileMap tiles;
 
-    int zoom_level;
-    int tile_size; // tile_size = 10^zoom_level
+    int _zoom_level;
 
     noise::module::Perlin gen;
 
@@ -48,11 +51,15 @@ public:
 
     void tick();
 
-    void zoom(bool in);
+    void zoom();
 
     void move_camera(int dx, int dy);
 
     const std::unique_ptr<Tile>& get_hovered_tile();
+
+    void move_map(int dx, int dy);
+
+    int get_tile_size(int zoom_level = ZOOM_INVALID);
 };
 
 

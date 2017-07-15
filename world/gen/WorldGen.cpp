@@ -14,10 +14,9 @@ double WorldGen::m_noise(double nx, double ny) {
 }
 
 WorldGen::WorldGen() {
-    _gen.SetSeed(time(NULL));
+    auto t = time(NULL);
+    auto seed_2 = t*t/12 + 3;
 
-    std::cout << time(NULL) << std::endl;
-    std::cout << std::hash<int>{}(time(NULL));
-
-    _moisture.SetSeed(rrandom::get_seed());
+    _gen.SetSeed(t);
+    _moisture.SetSeed(seed_2);
 }

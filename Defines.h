@@ -12,15 +12,16 @@ typedef struct mat_def {
     std::pair<double, double> m_range;
 } MaterialDefinition;
 
-#define WORLD_SIZE 1000
+#define WORLD_SIZE 2000
 #define DUP_FACTOR 1
 
 #define OCEAN_SIZE 25000
 #define LAKE_SIZE 2500
 #define CONTINENT_SIZE 10000
-#define DEFAULT_WATER_LEVEL 0.4
+#define DEFAULT_WATER_LEVEL 0.3
 
 #define RENDER_SIZE 100
 #define WINDOW_SIZE 1000
+#define VIEW_DISTANCE 100
 
 #endif //TEST_PROJECT_DEFINES_H

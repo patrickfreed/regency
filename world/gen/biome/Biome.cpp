@@ -69,8 +69,6 @@ void Biome::name_regions(TileMap &tiles) {
         }
         count++;
     }
-
-    std::cout << "done tile generation" << std::endl;
 }
 
 bool Biome::contains(double e, double m) {

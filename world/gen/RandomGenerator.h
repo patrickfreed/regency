@@ -8,6 +8,7 @@ namespace rrandom {
 
 class RandomGenerator {
 private:
+    std::random_device _device;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> dist;
 public:
