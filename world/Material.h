@@ -1,15 +1,17 @@
-//
+#ifndef REGENCY_WORLD_MATERIAL_H
+#define REGENCY_WORLD_MATERIAL_H
 
-#ifndef TEST_PROJECT_MATERIAL_H
-#define TEST_PROJECT_MATERIAL_H
-
-#include <string>
-#include <SFML/Graphics/Color.hpp>
 #include <map>
+#include <string>
+
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
+namespace regency {
+namespace world {
+
 class Material {
-private:
+  private:
     Material(std::string name, int id, sf::Color color, bool water = false);
 
     std::string name;
@@ -17,11 +19,16 @@ private:
     sf::Texture texture;
     int tile_number;
     bool _water;
-public:
+
+  public:
     const std::string& get_name();
+
     const sf::Color& get_color() const;
+
     const sf::Texture& get_texture();
+
     int get_tile_number() const;
+
     bool is_solid() const;
 
     // Some types
@@ -45,6 +52,7 @@ public:
     static const Material LOAMY_SOIL;
     static const Material CHALKY_SOIL;
 };
+}
+}
 
-
-#endif //TEST_PROJECT_MATERIAL_H
+#endif // REGENCY_WORLD_MATERIAL_H

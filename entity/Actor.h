@@ -1,16 +1,23 @@
 
-#ifndef TEST_PROJECT_ACTOR_H
-#define TEST_PROJECT_ACTOR_H
+#ifndef REGENCY_ACTOR_H
+#define REGENCY_ACTOR_H
 
 #include "Entity.h"
 
+namespace regency {
+namespace entity {
+
 class Actor : public Entity {
-public:
-    Actor(World& world);
+  public:
+    Actor(world::World& world);
+
     virtual void tick() = 0;
+
     virtual sf::Drawable& get_drawable() = 0;
-    void move(World::Direction d);
+
+    void move(world::World::Direction d);
 };
+}
+}
 
-
-#endif //TEST_PROJECT_ACTOR_H
+#endif // REGENCY_ACTOR_H

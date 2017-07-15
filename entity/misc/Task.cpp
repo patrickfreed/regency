@@ -1,9 +1,13 @@
 
 #include "Task.h"
 
-Task::Task(Objective *obj) : objective(obj) {
-}
+namespace regency {
+namespace entity {
 
-Objective *Task::get_objective() {
+Task::Task(Objective* obj) : objective(obj) {}
+
+Objective* Task::get_objective() {
     return this->objective;
+}
+}
 }

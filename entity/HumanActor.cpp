@@ -1,12 +1,16 @@
 
 #include "HumanActor.h"
+
 #include "misc/tasks/MovementTask.h"
+
+namespace regency {
+namespace entity {
 
 void HumanActor::tick() {
     if (this->task_queue.empty()) {
-        this->task_queue.push(new MovementTask(*this, make_pair(rand() % 10, rand() % 10)));
+        this->task_queue.push(new MovementTask(*this, std::make_pair(rand() % 10, rand() % 10)));
     } else {
-        Task *t = this->task_queue.front();
+        Task* t = this->task_queue.front();
 
         if (t->perform()) {
             task_queue.pop();
@@ -15,7 +19,7 @@ void HumanActor::tick() {
     }
 }
 
-HumanActor::HumanActor(World& world) : Actor(world), drawable(sf::Vector2f(10, 10)){
+HumanActor::HumanActor(world::World& world) : Actor(world), drawable(sf::Vector2f(10, 10)) {
     this->courage = rand() % 100;
     this->curiosity = rand() % 100;
     this->intelligence = rand() % 100;
@@ -32,10 +36,12 @@ HumanActor::HumanActor(World& world) : Actor(world), drawable(sf::Vector2f(10, 1
     this->radius = 5;
 }
 
-sf::Drawable &HumanActor::get_drawable() {
+sf::Drawable& HumanActor::get_drawable() {
     int xx = this->x * TILE_SIZE;
     int yy = this->y * TILE_SIZE;
 
     this->drawable.setPosition(xx, yy);
     return this->drawable;
+}
+}
 }

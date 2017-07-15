@@ -1,19 +1,24 @@
 
-#ifndef TEST_PROJECT_LOCATIONOBJECTIVE_H
-#define TEST_PROJECT_LOCATIONOBJECTIVE_H
+#ifndef REGENCY_LOCATIONOBJECTIVE_H
+#define REGENCY_LOCATIONOBJECTIVE_H
 
-
-#include <utility>
-#include "Objective.h"
 #include "../../Actor.h"
+#include "Objective.h"
+#include <utility>
+
+namespace regency {
+namespace entity {
 
 class LocationObjective : public Objective {
-public:
+  public:
     LocationObjective(std::pair<int, int> destination);
-    virtual float completion(Actor &actor);
-private:
-    pair<int, int> destination;
+
+    virtual float completion(Actor& actor);
+
+  private:
+    std::pair<int, int> destination;
 };
+}
+}
 
-
-#endif //TEST_PROJECT_LOCATIONOBJECTIVE_H
+#endif // REGENCY_LOCATIONOBJECTIVE_H

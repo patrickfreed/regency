@@ -1,19 +1,21 @@
 
 #include "Entity.h"
 
-size_t Entity::operator()(const Entity &e) {
-    return hash<string>()(this->id);
+namespace regency {
+namespace entity {
+
+size_t Entity::operator()(const Entity& e) {
+    return std::hash<std::string>()(id);
 }
 
-tuple<int, int, int> Entity::get_location() {
-    return tuple<int,int,int>(x, y, z);
+std::tuple<int, int, int> Entity::get_location() {
+    return std::tuple<int, int, int>(x, y, z);
 }
 
-World &Entity::get_world() {
-    return this->world;
+world::World& Entity::get_world() {
+    return _world;
 }
 
-Entity::Entity(World &world) : x(0), y(0), z(0), world(world) {
-
+Entity::Entity(world::World& world) : x(0), y(0), z(0), _world(world) {}
 }
-
+}

@@ -1,5 +1,10 @@
+
 #include "Material.h"
+
 #include <iostream>
+
+namespace regency {
+namespace world {
 
 Material::Material(std::string name, int id, sf::Color c, bool water)
     : name(name), color(c), texture(), _water(water) {
@@ -9,15 +14,15 @@ Material::Material(std::string name, int id, sf::Color c, bool water)
     this->tile_number = id;
 }
 
-const std::string &Material::get_name() {
+const std::string& Material::get_name() {
     return this->name;
 }
 
-const sf::Color &Material::get_color() const {
+const sf::Color& Material::get_color() const {
     return this->color;
 }
 
-const sf::Texture &Material::get_texture() {
+const sf::Texture& Material::get_texture() {
     return (this->texture);
 }
 
@@ -48,3 +53,5 @@ const Material Material::SAND("sand", 11, sf::Color(234, 216, 82));
 const Material Material::SALT_WATER("salt_water", 12, sf::Color(0, 0, 150), true);
 const Material Material::ROCK("rock", 13, sf::Color(128, 128, 128));
 const Material Material::SNOW("snow", 14, sf::Color(255, 255, 255));
+}
+}

@@ -1,19 +1,24 @@
 #include "World.h"
 
+#include <chrono>
 #include <iostream>
 #include <sstream>
 
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <chrono>
 
 #include "../Assets.h"
 #include "../Mouse.h"
 #include "../entity/HumanActor.h"
-#include "gen/FlatWorldGen.h"
 
-World::World(std::string name) : name(name), tiles() {
+namespace regency {
+namespace world {
+
+using std::min;
+using std::max;
+
+World::World(std::string name) : name(name), tiles(WORLD_SIZE) {
     this->texture.loadFromFile("../res/tileset.png");
 
     this->gen.SetSeed(static_cast<int32_t>(time(NULL)));
@@ -30,7 +35,7 @@ World::World(std::string name) : name(name), tiles() {
     this->tile_map.resize(RENDER_SIZE * RENDER_SIZE * 4);
     for (int x = 0; x < RENDER_SIZE; ++x) {
         for (int y = 0; y < RENDER_SIZE; ++y) {
-            sf::Vertex *quad = &(this->tile_map[(x + y * RENDER_SIZE) * 4]);
+            sf::Vertex* quad = &(this->tile_map[(x + y * RENDER_SIZE) * 4]);
             quad[0].position = sf::Vector2f(x * get_tile_size(), y * get_tile_size());
             quad[1].position = sf::Vector2f((x + 1) * get_tile_size(), y * get_tile_size());
             quad[2].position = sf::Vector2f((x + 1) * get_tile_size(), (y + 1) * get_tile_size());
@@ -43,13 +48,13 @@ double World::noise(double nx, double ny) {
     return gen.GetValue(nx, ny, 0.0) / 2.0 + 0.5;
 }
 
-void World::generate(WorldGen &generator) {
+void World::generate(gen::WorldGen& generator) {
     tiles.clear();
 
-    this->tiles.resize(WORLD_SIZE * DUP_FACTOR);
-    for (int x = 0; x < WORLD_SIZE * DUP_FACTOR; x++) {
-        this->tiles[x].reserve(WORLD_SIZE * DUP_FACTOR);
-    }
+    // this->tiles.resize(WORLD_SIZE * DUP_FACTOR);
+    // for (int x = 0; x < WORLD_SIZE * DUP_FACTOR; x++) {
+    //    this->tiles[x].reserve(WORLD_SIZE * DUP_FACTOR);
+    //}
 
     std::cout << "starting world generation..." << std::endl;
 
@@ -59,32 +64,34 @@ void World::generate(WorldGen &generator) {
     generator.generate(tiles, world_map);
 
     end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::chrono::duration<double> elapsed_seconds = end - start;
 
-    std::cout << "generation completed. elapsed time: " << elapsed_seconds.count() << " second(s)" << std::endl;
+    std::cout << "generation completed. elapsed time: " << elapsed_seconds.count() << " second(s)"
+              << std::endl;
 }
 
-string &World::get_name() {
-    return this->name;
+std::string& World::get_name() {
+    return name;
 }
 
-void World::render(sf::RenderWindow &window) {
+void World::render(sf::RenderWindow& window) {
     if (_zoom_level == ZOOM_LOCAL) {
         for (int x = 0; x < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); x++) {
             for (int y = 0; y < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); y++) {
                 int xx = x + pos.x / get_tile_size();
                 int yy = (y + pos.y / get_tile_size());
 
-                std::unique_ptr<Tile> &t = tiles[xx][yy];
+                std::unique_ptr<Tile>& t = tiles.get(xx, yy);
 
                 int tile_number = t->get_material()->get_tile_number();
                 int tu = tile_number % (this->texture.getSize().x / get_tile_size());
                 int tv = tile_number / (this->texture.getSize().x / get_tile_size());
 
-                sf::Vertex *q = &(this->tile_map[(x + y * RENDER_SIZE) * 4]);
+                sf::Vertex* q = &(this->tile_map[(x + y * RENDER_SIZE) * 4]);
                 q[0].texCoords = sf::Vector2f(tu * get_tile_size(), tv * get_tile_size());
                 q[1].texCoords = sf::Vector2f((tu + 1) * get_tile_size(), tv * get_tile_size());
-                q[2].texCoords = sf::Vector2f((tu + 1) * get_tile_size(), (tv + 1) * get_tile_size());
+                q[2].texCoords =
+                    sf::Vector2f((tu + 1) * get_tile_size(), (tv + 1) * get_tile_size());
                 q[3].texCoords = sf::Vector2f(tu * get_tile_size(), (tv + 1) * get_tile_size());
             }
         }
@@ -102,20 +109,22 @@ void World::render(sf::RenderWindow &window) {
             window.draw(region_name_text);
 
             region_name_text.setPosition(
-                    WINDOW_SIZE / 2 - (hover->get_subregion_name().length() * 10), 55);
+                WINDOW_SIZE / 2 - (hover->get_subregion_name().length() * 10), 55);
             region_name_text.setCharacterSize(25);
             region_name_text.setString(hover->get_subregion_name());
             window.draw(region_name_text);
         }
     } else {
         // this->sprite.scale(1.0f, 1.0f);
-        // sprite.setPosition(static_cast<float>(-pos.x), static_cast<float>(-pos.y));
+        // sprite.setPosition(static_cast<float>(-pos.x),
+        // static_cast<float>(-pos.y));
         sprite.setTextureRect(sf::Rect<int>(pos.x, pos.y, WINDOW_SIZE, WINDOW_SIZE));
         window.draw(sprite);
     }
     sf::Text pos_text;
     pos_text.setFont(Assets::font);
-    pos_text.setString(std::to_string(pos.x / get_tile_size()) + ", " + std::to_string(pos.y / get_tile_size()));
+    pos_text.setString(std::to_string(pos.x / get_tile_size()) + ", " +
+                       std::to_string(pos.y / get_tile_size()));
 
     pos_text.setOutlineColor(sf::Color::Black);
     pos_text.setOutlineThickness(2.5);
@@ -126,8 +135,8 @@ bool World::move(int x, int y, World::Direction d) {
     int xdiff = d == WEST ? -1 : (d == EAST ? 1 : 0);
     int ydiff = d == NORTH ? -1 : (d == SOUTH ? 1 : 0);
 
-    std::unique_ptr<Tile> &a = this->tiles[x][y];
-    std::unique_ptr<Tile> &aa = this->tiles[x + xdiff][y + ydiff];
+    std::unique_ptr<Tile>& a = tiles.get(x, y);
+    std::unique_ptr<Tile>& aa = tiles.get(x + xdiff, y + ydiff);
 
     if (a->get_actor() && !(aa->get_actor())) {
         aa->set_actor(a->get_actor());
@@ -191,8 +200,11 @@ void World::zoom() {
         int left = (mouse_pos.x + pos.x) / 100 * 100 * get_tile_size();
         int top = (mouse_pos.y + pos.y) / 100 * 100 * get_tile_size();
 
-        //int left = pos.x + max(0, mouse_pos.x - mouse_pos.x % 100) * get_tile_size() * DUP_FACTOR;
-        //int top = pos.y + max(0, mouse_pos.y - mouse_pos.y % 100) * get_tile_size() * DUP_FACTOR;
+        // int left = pos.x + max(0, mouse_pos.x - mouse_pos.x % 100) *
+        // get_tile_size() *
+        // DUP_FACTOR;
+        // int top = pos.y + max(0, mouse_pos.y - mouse_pos.y % 100) *
+        // get_tile_size() * DUP_FACTOR;
 
         pos.x = left;
         pos.y = top;
@@ -207,17 +219,18 @@ void World::zoom() {
     }
 }
 
-const std::unique_ptr<Tile> &World::get_hovered_tile() {
+const std::unique_ptr<Tile>& World::get_hovered_tile() {
     sf::Vector2i mouse_pos = Mouse::get_mouse_position();
 
-    if (mouse_pos.x < 0 || mouse_pos.x > WINDOW_SIZE || mouse_pos.y < 0 || mouse_pos.y > WINDOW_SIZE) {
-        return tiles[0][0];
+    if (mouse_pos.x < 0 || mouse_pos.x > WINDOW_SIZE || mouse_pos.y < 0 ||
+        mouse_pos.y > WINDOW_SIZE) {
+        return tiles.get(0, 0);
     }
 
     int xx = pos.x / get_tile_size() + mouse_pos.x / get_tile_size();
     int yy = pos.y / get_tile_size() + mouse_pos.y / get_tile_size();
 
-    return this->tiles[xx][yy];
+    return tiles.get(xx, yy);
 }
 
 int World::get_tile_size(int zoom_level) {
@@ -228,4 +241,6 @@ int World::get_tile_size(int zoom_level) {
     } else {
         return get_tile_size(_zoom_level);
     }
+}
+}
 }

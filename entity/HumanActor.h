@@ -1,15 +1,19 @@
 
-#ifndef TEST_PROJECT_HUMANACTOR_H
-#define TEST_PROJECT_HUMANACTOR_H
-
+#ifndef REGENCY_HUMANACTOR_H
+#define REGENCY_HUMANACTOR_H
 
 #include <queue>
+
 #include <SFML/Graphics/RectangleShape.hpp>
+
 #include "Actor.h"
 #include "misc/Task.h"
 
+namespace regency {
+namespace entity {
+
 class HumanActor : Actor {
-private:
+  private:
     // personality
     int courage;
     int curiosity;
@@ -26,17 +30,21 @@ private:
     int hammer;
 
     // Work area (affected by curiosity, courage)
-    pair<int, int> origin;
+    std::pair<int, int> origin;
     int radius;
 
-    queue<Task *> task_queue;
+    std::queue<Task*> task_queue;
 
     sf::RectangleShape drawable;
-public:
-    HumanActor(World& world);
+
+  public:
+    HumanActor(world::World& world);
+
     virtual void tick();
+
     virtual sf::Drawable& get_drawable();
 };
+}
+}
 
-
-#endif //TEST_PROJECT_HUMANACTOR_H
+#endif // REGENCY_HUMANACTOR_H

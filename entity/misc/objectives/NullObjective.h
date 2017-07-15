@@ -1,14 +1,17 @@
 
-#ifndef TEST_PROJECT_NULLOBJECTIVE_H
-#define TEST_PROJECT_NULLOBJECTIVE_H
-
+#ifndef REGENCY_NULLOBJECTIVE_H
+#define REGENCY_NULLOBJECTIVE_H
 
 #include "Objective.h"
 
+namespace regency {
+namespace entity {
+
 class NullObjective : Objective {
-public:
+  public:
     virtual float completion();
 };
+}
+}
 
-
-#endif //TEST_PROJECT_NULLOBJECTIVE_H
+#endif // REGENCY_NULLOBJECTIVE_H

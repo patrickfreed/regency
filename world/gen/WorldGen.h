@@ -1,6 +1,6 @@
 
-#ifndef TEST_PROJECT_WORLDGEN_H
-#define TEST_PROJECT_WORLDGEN_H
+#ifndef REGENCY_WORLDGEN_H
+#define REGENCY_WORLDGEN_H
 
 /*
  * Class for supporting different types of worlds
@@ -9,22 +9,34 @@
  */
 
 #include <vector>
+
 #include <noise/module/perlin.h>
-#include "../Tile.h"
+
 #include "../../Defines.h"
+#include "../Tile.h"
+#include "../TileMap.h"
+
+namespace regency {
+namespace world {
+namespace gen {
 
 class WorldGen {
-public:
+  public:
     virtual void generate(TileMap& tiles, sf::Texture& world_map) = 0;
-protected:
+
+  protected:
     WorldGen();
 
-    //virtual double elevation(double nx, double ny) = 0;
+    // virtual double elevation(double nx, double ny) = 0;
     double noise(double nx, double ny);
+
     double m_noise(double nx, double ny);
-private:
+
+  private:
     noise::module::Perlin _moisture;
     noise::module::Perlin _gen;
 };
-
-#endif //TEST_PROJECT_WORLDGEN_H
+}
+}
+}
+#endif // REGENCY_WORLDGEN_H

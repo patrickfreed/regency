@@ -4,9 +4,13 @@
 #include <iostream>
 #include <sstream>
 
+namespace regency {
+namespace world {
+namespace gen {
+
 void GrasslandBiome::generate_tile(
-    unsigned int x, unsigned int y, double e, double m, TileMap &tiles) {
-    const Material *material = nullptr;
+    unsigned int x, unsigned int y, double e, double m, TileMap& tiles) {
+    const Material* material = nullptr;
 
     int tree = _rnd.next_int();
     if (tree < 5) {
@@ -24,7 +28,8 @@ void GrasslandBiome::generate_tile(
         material = &Material::RYEGRASS;
     }
 
-    tiles[x].insert(tiles[x].begin() + y, std::make_unique<Tile>(x, y, material, e, m));
+    std::unique_ptr<Tile> tile = std::make_unique<Tile>(x, y, material, e, m);
+    tiles.set(x, y, std::move(tile));
 }
 
 GrasslandBiome::GrasslandBiome(double min_e, double max_e, double min_m, double max_m)
@@ -43,4 +48,7 @@ GrasslandBiome::GrasslandBiome(double min_e, double max_e, double min_m, double 
         _materials.push_back(m);
     }
      */
+}
+}
+}
 }

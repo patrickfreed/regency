@@ -1,10 +1,12 @@
-
-#ifndef TEST_PROJECT_DISJOINTSET_H
-#define TEST_PROJECT_DISJOINTSET_H
+#ifndef REGENCY_WORLD_DISJOINTSET_H
+#define REGENCY_WORLD_DISJOINTSET_H
 
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+namespace regency {
+namespace world {
 
 typedef struct entry {
     int id;
@@ -13,7 +15,7 @@ typedef struct entry {
 } Entry;
 
 class DisjointSet {
-public:
+  public:
     void make_set(int);
 
     void union_elements(int, int);
@@ -25,8 +27,11 @@ public:
     int size();
 
     std::unordered_map<int, std::unordered_set<int>> get_sets();
-private:
+
+  private:
     std::unordered_map<int, Entry> _data;
 };
+}
+}
 
-#endif //TEST_PROJECT_DISJOINTSET_H
+#endif // REGENCY_WORLD_DISJOINTSET_H

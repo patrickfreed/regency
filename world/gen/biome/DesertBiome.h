@@ -1,18 +1,19 @@
-//
-// Created by Patrick Freed on 6/29/17.
-//
-
-#ifndef TEST_PROJECT_DESERTBIOME_H
-#define TEST_PROJECT_DESERTBIOME_H
-
+#ifndef REGENCY_DESERTBIOME_H
+#define REGENCY_DESERTBIOME_H
 
 #include "Biome.h"
 
+namespace regency {
+namespace world {
+namespace gen {
+
 class DesertBiome : public Biome {
-public:
+  public:
     DesertBiome(double, double, double, double);
+
     virtual void generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap& tiles);
 };
-
-
-#endif //TEST_PROJECT_DESERTBIOME_H
+}
+}
+}
+#endif // REGENCY_DESERTBIOME_H

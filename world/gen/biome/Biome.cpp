@@ -1,9 +1,12 @@
 
 #include "Biome.h"
-#include "../RandomGenerator.h"
 
 #include <iostream>
 #include <sstream>
+
+namespace regency {
+namespace world {
+namespace gen {
 
 Biome::Biome(std::string name, double min_e, double max_e, double min_m, double max_m)
     : _e_range(min_e, max_e), _m_range(min_m, max_m), _ds(), name(name), _rnd(1, 100) {}
@@ -16,7 +19,7 @@ const std::pair<double, double> Biome::get_moisture_range() {
     return _m_range;
 }
 
-void Biome::add_tile(unsigned int x, unsigned int y, double e, double m, TileMap &tiles) {
+void Biome::add_tile(unsigned int x, unsigned int y, double e, double m, TileMap& tiles) {
     int id = x + y * WORLD_SIZE;
 
     _ds.make_set(id);
@@ -39,11 +42,11 @@ void Biome::add_tile(unsigned int x, unsigned int y, double e, double m, TileMap
     generate_tile(x, y, e, m, tiles);
 }
 
-void Biome::generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap &tiles) {
+void Biome::generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap& tiles) {
     std::vector<MaterialDefinition> options;
-    for (auto &mat_def : _materials) {
-        auto &e_range = mat_def.e_range;
-        auto &m_range = mat_def.m_range;
+    for (auto& mat_def : _materials) {
+        auto& e_range = mat_def.e_range;
+        auto& m_range = mat_def.m_range;
 
         if (e > e_range.first && e < e_range.second && m > m_range.first && m < m_range.second) {
             options.push_back(mat_def);
@@ -51,11 +54,10 @@ void Biome::generate_tile(unsigned int x, unsigned int y, double e, double m, Ti
     }
 
     int chosen = static_cast<int>((double)_rnd.next_int() / 100.0 * (double)(options.size() - 1));
-    tiles[x].insert(tiles[x].begin() + y,
-                    std::move(std::make_unique<Tile>(x, y, options[chosen].material, e, m)));
+    tiles.set(x, y, std::move(std::make_unique<Tile>(x, y, options[chosen].material, e, m)));
 }
 
-void Biome::name_regions(TileMap &tiles) {
+void Biome::name_regions(TileMap& tiles) {
     std::cout << "starting tile generation for " << this->get_name() << std::endl;
 
     int count = 1;
@@ -65,7 +67,7 @@ void Biome::name_regions(TileMap &tiles) {
             int x = i % WORLD_SIZE;
             int y = i / WORLD_SIZE;
 
-            tiles[x][y]->set_subregion_name(get_name() + std::to_string(count));
+            tiles.get(x, y)->set_subregion_name(get_name() + std::to_string(count));
         }
         count++;
     }
@@ -75,8 +77,6 @@ bool Biome::contains(double e, double m) {
     return e >= _e_range.first && e <= _e_range.second && m >= _m_range.first &&
            m <= _m_range.second;
 }
-
-void Biome::insert_into_world(
-    unsigned int x, unsigned int y, double e, double m, const Material *mat, TileMap &tiles) {
-    tiles[x].insert(tiles[x].begin() + y, std::move(std::make_unique<Tile>(x, y, mat, e, m)));
-}
+} // gen
+} // world
+} // regency

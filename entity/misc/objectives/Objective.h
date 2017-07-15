@@ -1,15 +1,19 @@
 
-#ifndef TEST_PROJECT_OBJECTIVE_H
-#define TEST_PROJECT_OBJECTIVE_H
-
+#ifndef REGENCY_OBJECTIVE_H
+#define REGENCY_OBJECTIVE_H
 
 #include "../../Actor.h"
 
+namespace regency {
+namespace entity {
+
 class Objective {
-public:
+  public:
     virtual ~Objective() {}
-    virtual float completion(Actor &actor) = 0;
+
+    virtual float completion(Actor& actor) = 0;
 };
+}
+}
 
-
-#endif //TEST_PROJECT_OBJECTIVE_H
+#endif // REGENCY_OBJECTIVE_H

@@ -1,18 +1,10 @@
 
-#ifndef TEST_PROJECT_DEFINES_H
-#define TEST_PROJECT_DEFINES_H
+#ifndef REGENCY_DEFINES_H
+#define REGENCY_DEFINES_H
 
-// Maybe a class in future
-typedef std::vector<std::vector<std::unique_ptr<Tile>>> TileMap;
+namespace regency {
 
-// Maybe a class in future
-typedef struct mat_def {
-    const Material *material;
-    std::pair<double, double> e_range;
-    std::pair<double, double> m_range;
-} MaterialDefinition;
-
-#define WORLD_SIZE 2000
+#define WORLD_SIZE 1000
 #define DUP_FACTOR 1
 
 #define OCEAN_SIZE 25000
@@ -23,5 +15,6 @@ typedef struct mat_def {
 #define RENDER_SIZE 100
 #define WINDOW_SIZE 1000
 #define VIEW_DISTANCE 100
+}
 
-#endif //TEST_PROJECT_DEFINES_H
+#endif // REGENCY_DEFINES_H

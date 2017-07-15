@@ -1,19 +1,17 @@
 #include <iostream>
 
-#include "Game.h"
 #include "Assets.h"
-
-using namespace std;
+#include "Game.h"
 
 int main() {
 
     // load assets
     // TODO: load other assets here (names, textures, music)
-    Assets::font.loadFromFile("../res/font/pixelmix.ttf");
+    regency::Assets::font.loadFromFile("../res/font/pixelmix.ttf");
 
-    Game g;
+    regency::Game g;
     g.start();
 
-    cout << "Bye!" << endl;
+    std::cout << "Bye!" << std::endl;
     return 0;
 }

@@ -1,22 +1,28 @@
-#ifndef TEST_PROJECT_GAME_H
-#define TEST_PROJECT_GAME_H
+#ifndef REGENCY_GAME_H
+#define REGENCY_GAME_H
 
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
 #include "world/World.h"
 
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+
+namespace regency {
 class Game {
-public:
+  public:
     Game();
+
     void start();
-    World& get_world();
+
+    world::World& get_world();
+
     static Game GameInstance;
 
-private:
+  private:
     void tick();
+
     sf::RenderWindow _main_window;
-    World world;
+    world::World _world;
 };
+}
 
-
-#endif //TEST_PROJECT_GAME_H
+#endif // REGENCY_GAME_H

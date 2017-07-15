@@ -7,9 +7,13 @@
 #include "../DisjointSet.h"
 #include "biome/GrasslandBiome.h"
 
-void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
+namespace regency {
+namespace world {
+namespace gen {
+
+void FlatWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
     world_map.create(WORLD_SIZE, WORLD_SIZE);
-    sf::Uint8 *pixels = new sf::Uint8[WORLD_SIZE * WORLD_SIZE * 4];
+    sf::Uint8* pixels = new sf::Uint8[WORLD_SIZE * WORLD_SIZE * 4];
 
     DisjointSet ds;
 
@@ -22,11 +26,11 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
     const double JUNGLE_CUTOFF = 0.7;
     const double DESERT_CUTOFF = 0.3;
 
-    rrandom::RandomGenerator rnd(1, 100);
+    RandomGenerator rnd(1, 100);
 
     for (unsigned int y = 0; y < WORLD_SIZE; ++y) {
         for (unsigned int x = 0; x < WORLD_SIZE; ++x) {
-            const Material *mat;
+            const Material* mat;
 
             double nx = (double)x / (double)WORLD_SIZE - 0.5,
                    ny = (double)y / (double)WORLD_SIZE - 0.5;
@@ -85,13 +89,14 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
             int ym1 = x + (y - 1) * WORLD_SIZE;
             ds.make_set(id);
 
-            auto equal = [](const Material *a, const Material *b) {
+            auto equal = [](const Material* a, const Material* b) {
                 return a->is_solid() == b->is_solid();
             };
 
+            /*
             if (xdiff > 0 && ydiff > 0) {
-                const Material *m1 = tiles[x - 1][y]->get_material();
-                const Material *m2 = tiles[x][y - 1]->get_material();
+                const Material* m1 = tiles[x - 1][y]->get_material();
+                const Material* m2 = tiles[x][y - 1]->get_material();
 
                 if (equal(m1, m2) && equal(mat, m1)) {
                     ds.union_elements(ym1, xm1);
@@ -113,6 +118,7 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
 
             tiles[x].insert(tiles[x].begin() + y,
                             std::move(std::make_unique<Tile>(x, y, mat, e, m)));
+                            */
         }
     }
 
@@ -134,7 +140,7 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
     int desert = 1;
     int mountain = 1;
 
-    auto similarity = [](Tile &t1, Tile &t2) {
+    auto similarity = [](Tile& t1, Tile& t2) {
         double score = 1.0;
 
         score -= fabs(t1.get_moisture() - t2.get_moisture());
@@ -146,12 +152,12 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
     };
 
     DisjointSet r_ds;
-    for (auto &r : regions) {
+    for (auto& r : regions) {
         int sample = *r.second.begin();
         int xs = sample % WORLD_SIZE;
         int ys = sample / WORLD_SIZE;
 
-        bool land = tiles[xs][ys]->get_material()->is_solid();
+        bool land = tiles.get(xs, ys)->get_material()->is_solid();
         std::ostringstream oss;
         if (!land) {
             if (r.second.size() >= OCEAN_SIZE) {
@@ -168,41 +174,42 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
                 oss << "Island " << island++;
             }
         }
+        /*
+                for (auto i : r.second) {
+                    int x = i % WORLD_SIZE;
+                    int y = i / WORLD_SIZE;
 
-        for (auto i : r.second) {
-            int x = i % WORLD_SIZE;
-            int y = i / WORLD_SIZE;
+                    r_ds.make_set(i);
 
-            r_ds.make_set(i);
+                    Tile t = *tiles[x][y];
 
-            Tile t = *tiles[x][y];
+                    tiles[x][y]->set_region_name(oss.str());
 
-            tiles[x][y]->set_region_name(oss.str());
+                    const double SIMILARITY = 0.9;
 
-            const double SIMILARITY = 0.9;
+                    if (x > 0 && y > 0) {
+                        Tile& m1 = *tiles[x - 1][y];
+                        Tile& m2 = *tiles[x][y - 1];
 
-            if (x > 0 && y > 0) {
-                Tile &m1 = *tiles[x - 1][y];
-                Tile &m2 = *tiles[x][y - 1];
-
-                if (similarity(m1, m2) && similarity(t, m1)) {
-                    ds.union_elements(i - 1, i + WORLD_SIZE);
-                    ds.union_elements(i, i + 1);
-                } else if (similarity(t, m1)) {
-                    ds.union_elements(i, i - 1);
-                } else if (similarity(t, m2)) {
-                    ds.union_elements(i, i - WORLD_SIZE);
+                        if (similarity(m1, m2) && similarity(t, m1)) {
+                            ds.union_elements(i - 1, i + WORLD_SIZE);
+                            ds.union_elements(i, i + 1);
+                        } else if (similarity(t, m1)) {
+                            ds.union_elements(i, i - 1);
+                        } else if (similarity(t, m2)) {
+                            ds.union_elements(i, i - WORLD_SIZE);
+                        }
+                    } else if (x > 0) {
+                        if (similarity(t, *tiles[x - 1][y])) {
+                            ds.union_elements(i, i - 1);
+                        }
+                    } else if (y) {
+                        if (similarity(t, *tiles[x][y - 1])) {
+                            ds.union_elements(i, i - WORLD_SIZE);
+                        }
+                    }
                 }
-            } else if (x > 0) {
-                if (similarity(t, *tiles[x - 1][y])) {
-                    ds.union_elements(i, i - 1);
-                }
-            } else if (y) {
-                if (similarity(t, *tiles[x][y - 1])) {
-                    ds.union_elements(i, i - WORLD_SIZE);
-                }
-            }
-        }
+                */
         r_counter++;
     }
     std::cout << "done regions" << std::endl;
@@ -212,21 +219,24 @@ void FlatWorldGen::generate(TileMap &tiles, sf::Texture &world_map) {
     auto sub_regions = r_ds.get_sets();
     int sub_counter = 1;
 
-    for (auto &r : regions) {
+    for (auto& r : regions) {
         int sample = *r.second.begin();
         int xs = sample % WORLD_SIZE;
         int ys = sample / WORLD_SIZE;
 
         std::string name = "sub_region" + std::to_string(sub_counter++);
-        for (auto &i : r.second) {
+        for (auto& i : r.second) {
             int x = i % WORLD_SIZE;
             int y = i / WORLD_SIZE;
 
-            tiles[x][y]->set_subregion_name(name);
+            tiles.get(x, y)->set_subregion_name(name);
         }
     }
 
     world_map.update(pixels);
 
     delete[] pixels;
+}
+}
+}
 }

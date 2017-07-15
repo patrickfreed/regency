@@ -11,21 +11,25 @@
 #include <sstream>
 #include <thread>
 
-Game::Game() : world("world_name_placeholder") {}
+namespace regency {
 
-StandardWorldGen get_default_gen() {
+Game::Game() : _world("world_name_placeholder") {}
+
+world::gen::StandardWorldGen get_default_gen() {
+    using namespace world::gen;
+
     StandardWorldGen generator{"basic", DEFAULT_WATER_LEVEL};
 
     std::unique_ptr<GrasslandBiome> grassland =
-            std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
+        std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
 
     std::unique_ptr<WaterBiome> water =
-            std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
+        std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
 
     std::unique_ptr<MountainBiome> mountain = std::make_unique<MountainBiome>(0.8, 1.0, 0.0, 1.0);
 
     std::unique_ptr<DesertBiome> desert =
-            std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.4);
+        std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.4);
 
     generator.add_biome(std::move(grassland));
     generator.add_biome(std::move(water));
@@ -43,9 +47,8 @@ void Game::start() {
     // load assets here - for now just Material colors (not textures...)
     // Material::load_colors();
 
-
-    StandardWorldGen g = get_default_gen();
-    world.generate(g);
+    world::gen::StandardWorldGen g = get_default_gen();
+    _world.generate(g);
 
     Game::tick();
 }
@@ -72,16 +75,16 @@ void Game::tick() {
             } else if (currentEvent.type == sf::Event::KeyPressed) {
                 if (currentEvent.key.code == sf::Keyboard::G) {
                     std::cout << "regenerating...";
-                    StandardWorldGen g = get_default_gen();
-                    world.generate(g);
+                    world::gen::StandardWorldGen g = get_default_gen();
+                    _world.generate(g);
                 } else if (currentEvent.key.code == sf::Keyboard::Z) {
-                    world.zoom();
+                    _world.zoom();
                 }
             }
         }
 
-        this->world.tick();
-        this->world.render(_main_window);
+        _world.tick();
+        _world.render(_main_window);
 
         sf::Vector2i mouse_coords = Mouse::get_mouse_position();
 
@@ -95,6 +98,7 @@ void Game::tick() {
     }
 }
 
-World &Game::get_world() {
-    return this->world;
+world::World& Game::get_world() {
+    return _world;
+}
 }

@@ -11,7 +11,7 @@ files = re.finditer(r"(?:modified|new file):\s*([\w/\.]*)", git)
 
 for match in files:
     f = match.group(1)
-    if len(f) > 4 and f[-3:] in {"hpp", "cpp", ".hh"}:
+    if len(f) > 4 and f.endswith((".hpp", "cpp", ".hh", ".h")):
         subprocess.check_output("clang-format -i " + f, shell=True)
         print "formatted " + f
 
