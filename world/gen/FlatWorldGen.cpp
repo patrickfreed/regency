@@ -1,4 +1,5 @@
-
+// TODO: delete this file
+#ifdef NOT_DEFINED
 #include "FlatWorldGen.h"
 
 #include <iostream>
@@ -157,7 +158,7 @@ void FlatWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
         int xs = sample % WORLD_SIZE;
         int ys = sample / WORLD_SIZE;
 
-        bool land = tiles.get(xs, ys)->get_material()->is_solid();
+        bool land = tiles.get(xs, ys).get_material()->is_solid();
         std::ostringstream oss;
         if (!land) {
             if (r.second.size() >= OCEAN_SIZE) {
@@ -240,3 +241,4 @@ void FlatWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
 }
 }
 }
+#endif

@@ -1,39 +1,40 @@
 
 #include "MovementTask.h"
 
+#include "../../../world/PathFinder.h"
+#include "../../../world/World.h"
 #include "../objectives/LocationObjective.h"
 
 namespace regency {
 namespace entity {
 
-MovementTask::MovementTask(Actor& actor, std::pair<int, int> destination)
-    : Task(new LocationObjective(destination)), dest(destination), actor(actor) {}
+MovementTask::MovementTask(Actor& actor, world::Location destination)
+    : Task(new LocationObjective(actor.get_location(), destination)), _dest(destination),
+      actor(actor), _pf{actor, actor.get_location(), destination} {}
 
-bool MovementTask::perform() {
-    if (this->get_objective()->completion(this->actor) == 1) {
-        return true;
+Outcome MovementTask::perform() {
+    if (!_pf.is_finished()) {
+        if (!_pf.find_path()) {
+            _success = Outcome::FAILURE;
+            return _success;
+        }
+        _pf.get_path();
     }
 
-    std::tuple<int, int, int> loc = this->actor.get_location();
-
-    world::World::Direction d;
-
-    if (std::get<0>(loc) < dest.first) {
-        d = world::World::EAST;
-    } else if (std::get<0>(loc) > dest.first) {
-        d = world::World::WEST;
-    } else if (std::get<1>(loc) > dest.second) {
-        d = world::World::NORTH;
-    } else {
-        d = world::World::SOUTH;
+    if (get_objective()->completion(this->actor) == 1) {
+        return Outcome::SUCCESS;
     }
 
-    this->actor.move(d);
-    return false;
+    world::Location loc = actor.get_location();
+    world::Location next = _pf.next();
+    world::Direction d = loc.get_direction_to(next);
+    actor.move(d);
+
+    return Outcome::IN_PROGRESS;
 }
 
-std::pair<int, int> MovementTask::find_target() {
-    return this->dest;
+world::Location MovementTask::find_target() {
+    return _dest;
 }
 }
 }

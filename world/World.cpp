@@ -10,6 +10,7 @@
 
 #include "../Assets.h"
 #include "../Mouse.h"
+#include "../entity/Actor.h"
 #include "../entity/HumanActor.h"
 
 namespace regency {
@@ -44,10 +45,6 @@ World::World(std::string name) : name(name), tiles(WORLD_SIZE) {
     }
 }
 
-double World::noise(double nx, double ny) {
-    return gen.GetValue(nx, ny, 0.0) / 2.0 + 0.5;
-}
-
 void World::generate(gen::WorldGen& generator) {
     tiles.clear();
 
@@ -76,14 +73,19 @@ std::string& World::get_name() {
 
 void World::render(sf::RenderWindow& window) {
     if (_zoom_level == ZOOM_LOCAL) {
+        Location focus = get_focus();
+
         for (int x = 0; x < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); x++) {
             for (int y = 0; y < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); y++) {
                 int xx = x + pos.x / get_tile_size();
                 int yy = (y + pos.y / get_tile_size());
 
-                std::unique_ptr<Tile>& t = tiles.get(xx, yy);
+                Tile& t = tiles.get(xx, yy);
+                bool is_focus = xx == focus.get_x() && yy == focus.get_y();
 
-                int tile_number = t->get_material()->get_tile_number();
+                int tile_number = is_focus ? 5 : t.get_material()->get_tile_number();
+                tile_number = t.get_actor() ? 15 : tile_number;
+
                 int tu = tile_number % (this->texture.getSize().x / get_tile_size());
                 int tv = tile_number / (this->texture.getSize().x / get_tile_size());
 
@@ -95,23 +97,23 @@ void World::render(sf::RenderWindow& window) {
                 q[3].texCoords = sf::Vector2f(tu * get_tile_size(), (tv + 1) * get_tile_size());
             }
         }
-        window.draw(this->tile_map, &this->texture);
+        window.draw(tile_map, &texture);
 
-        const std::unique_ptr<Tile>& hover = get_hovered_tile();
-        if (hover) {
+        if (Mouse::in_window()) {
+            Tile& hover = get_hovered_tile();
             sf::Text region_name_text;
             region_name_text.setFont(Assets::font);
-            region_name_text.setString(hover->get_region_name());
-            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover->get_region_name().length() * 10),
+            region_name_text.setString(hover.get_region_name());
+            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover.get_region_name().length() * 10),
                                          20);
             region_name_text.setOutlineColor(sf::Color::Black);
             region_name_text.setOutlineThickness(2.5);
             window.draw(region_name_text);
 
             region_name_text.setPosition(
-                WINDOW_SIZE / 2 - (hover->get_subregion_name().length() * 10), 55);
+                WINDOW_SIZE / 2 - (hover.get_subregion_name().length() * 10), 55);
             region_name_text.setCharacterSize(25);
-            region_name_text.setString(hover->get_subregion_name());
+            region_name_text.setString(hover.get_subregion_name());
             window.draw(region_name_text);
         }
     } else {
@@ -131,22 +133,32 @@ void World::render(sf::RenderWindow& window) {
     window.draw(pos_text);
 }
 
-bool World::move(int x, int y, World::Direction d) {
-    int xdiff = d == WEST ? -1 : (d == EAST ? 1 : 0);
-    int ydiff = d == NORTH ? -1 : (d == SOUTH ? 1 : 0);
+bool World::move(entity::Entity& e, world::Direction d) {
+    Location& src = e.get_location();
+    Location dst = src.get_adjacent(d);
 
-    std::unique_ptr<Tile>& a = tiles.get(x, y);
-    std::unique_ptr<Tile>& aa = tiles.get(x + xdiff, y + ydiff);
+    if (!dst.is_valid()) {
+        std::cout << "bad dst " << dst.str() << std::endl;
+        return false;
+    }
 
-    if (a->get_actor() && !(aa->get_actor())) {
-        aa->set_actor(a->get_actor());
-        a->set_actor(nullptr);
+    Tile& a = get_tile(src);
+    Tile& aa = get_tile(dst);
+
+    if (a.get_actor() && !(aa.get_actor())) {
+        // std::cout << "moved from " << src.str() << " => " << dst.str() << std::endl;
+
+        aa.set_actor(a.get_actor());
+        a.set_actor({});
+        src._x = dst.get_x();
+        src._y = dst.get_y();
         return true;
     }
     return false;
 }
 
 void World::tick() {
+    // Camera tick
     int xdiff = 0;
     int ydiff = 0;
 
@@ -169,6 +181,14 @@ void World::tick() {
 
     pos.x = min(max(0, nx), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
     pos.y = min(max(0, ny), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
+
+    // Game logic tick
+    Location focus = get_focus();
+
+    auto nearby_actors = get_nearby_actors(focus, 51);
+    for (auto&& actor : nearby_actors) {
+        actor->tick();
+    }
 }
 
 void World::move_map(int dx, int dy) {
@@ -219,18 +239,30 @@ void World::zoom() {
     }
 }
 
-const std::unique_ptr<Tile>& World::get_hovered_tile() {
+Tile& World::get_hovered_tile() {
     sf::Vector2i mouse_pos = Mouse::get_mouse_position();
 
     if (mouse_pos.x < 0 || mouse_pos.x > WINDOW_SIZE || mouse_pos.y < 0 ||
         mouse_pos.y > WINDOW_SIZE) {
-        return tiles.get(0, 0);
+        throw std::runtime_error("Mouse position out of frame.");
     }
 
     int xx = pos.x / get_tile_size() + mouse_pos.x / get_tile_size();
     int yy = pos.y / get_tile_size() + mouse_pos.y / get_tile_size();
 
     return tiles.get(xx, yy);
+}
+
+Tile& World::get_tile(int x, int y) {
+    return tiles.get(x, y);
+}
+
+Tile& World::get_tile(const Location& l) {
+    if (!l.is_valid()) {
+        throw std::runtime_error("invalid location in get_tile: " + l.str());
+    }
+
+    return get_tile(l.get_x(), l.get_y());
 }
 
 int World::get_tile_size(int zoom_level) {
@@ -242,5 +274,48 @@ int World::get_tile_size(int zoom_level) {
         return get_tile_size(_zoom_level);
     }
 }
+
+void World::spawn(std::shared_ptr<entity::Actor> e) {
+    Location& location = e->get_location();
+
+    if (!location.is_valid()) {
+        throw std::runtime_error("Tried to spawn entity at invalid location: " + location.str());
+    }
+
+    Tile& tile = get_tile(location);
+
+    if (!tile.get_actor()) {
+        tile.set_actor(e);
+        _entities["ASDF"] = e;
+    }
 }
+
+Location World::get_focus() {
+    return Location(pos.x / get_tile_size() + WINDOW_SIZE / 2 / get_tile_size(),
+                    pos.y / get_tile_size() + WINDOW_SIZE / 2 / get_tile_size());
 }
+
+std::vector<std::shared_ptr<entity::Actor>> World::get_nearby_actors(Location l, int radius) {
+    std::vector<std::shared_ptr<entity::Actor>> actors;
+
+    int xs = max(0, l.get_x() - radius);
+    int ys = max(0, l.get_y() - radius);
+
+    int xe = min(WORLD_SIZE, l.get_x() + radius);
+    int ye = min(WORLD_SIZE, l.get_y() + radius);
+
+    for (int x = xs; x < xe; ++x) {
+        for (int y = ys; y < ye; ++y) {
+            Tile& tile = get_tile(x, y);
+
+            if (tile.get_actor()) {
+                actors.push_back(tile.get_actor());
+            }
+        }
+    }
+
+    return actors;
+}
+
+} // namespace world
+} // namespace regency

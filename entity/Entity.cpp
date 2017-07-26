@@ -1,21 +1,21 @@
-
 #include "Entity.h"
 
 namespace regency {
 namespace entity {
 
+Entity::Entity(world::World& world) : _world(world), _location() {}
+
 size_t Entity::operator()(const Entity& e) {
     return std::hash<std::string>()(id);
 }
 
-std::tuple<int, int, int> Entity::get_location() {
-    return std::tuple<int, int, int>(x, y, z);
+world::Location& Entity::get_location() {
+    return _location;
 }
 
 world::World& Entity::get_world() {
     return _world;
 }
 
-Entity::Entity(world::World& world) : x(0), y(0), z(0), _world(world) {}
-}
-}
+} // namespace entity
+} // namespace regency

@@ -2,6 +2,9 @@
 #ifndef REGENCY_MOVEMENTTASK_H
 #define REGENCY_MOVEMENTTASK_H
 
+#include <list>
+
+#include "../../../world/PathFinder.h"
 #include "../../Actor.h"
 #include "../Task.h"
 
@@ -10,15 +13,19 @@ namespace entity {
 
 class MovementTask : public Task {
   private:
-    std::pair<int, int> dest;
+    world::Location _dest;
+
+    // TODO: think about moving this into actor?
+    world::PathFinder _pf;
+
     Actor& actor;
 
   public:
-    MovementTask(Actor& actor, std::pair<int, int> destination);
+    MovementTask(Actor& actor, world::Location destination);
 
-    virtual bool perform();
+    virtual Outcome perform();
 
-    virtual std::pair<int, int> find_target();
+    virtual world::Location find_target();
 };
 }
 }

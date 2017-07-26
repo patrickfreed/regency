@@ -1,20 +1,28 @@
 #ifndef REGENCY_WORLD_TILE_H
 #define REGENCY_WORLD_TILE_H
 
+#include "Location.h"
 #include "Material.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <memory>
 
 namespace regency {
+namespace entity {
+class Actor;
+}
+
 namespace world {
 
 #define TILE_SIZE 1
 
-class Actor;
+// class Actor;
 
 class Tile {
   private:
+    Location _location;
+
     unsigned int x;
     unsigned int y;
     unsigned int z; // ground floor height
@@ -29,25 +37,27 @@ class Tile {
     void get_bounds(sf::RectangleShape& bounds_in);
 
     std::vector<const Material*> mat;
-    Actor* actor;
+    std::shared_ptr<entity::Actor> actor;
 
     std::string region_name;
     std::string _subregion_name;
 
   public:
-    Tile(unsigned int x, unsigned int y, const Material* material, double e, double m);
+    Tile(int x, int y, const Material* material, double e, double m);
+
+    Tile(Location loc, const Material* material, double e, double m);
 
     void set_material(const Material* material);
 
-    const Material* get_material();
+    const Material* get_material() const;
 
     void render(sf::RenderWindow& window, int x, int y, int zoom_level);
 
-    void set_actor(Actor* actor);
+    void set_actor(std::shared_ptr<entity::Actor> actor = {});
 
-    Actor* get_actor();
+    std::shared_ptr<entity::Actor> get_actor();
 
-    std::string& get_region_name();
+    const std::string& get_region_name() const;
 
     void set_region_name(const std::string& name);
 
@@ -57,9 +67,11 @@ class Tile {
 
     void tick();
 
-    double get_moisture();
+    double get_moisture() const;
 
-    double get_elevation();
+    double get_elevation() const;
+
+    const Location& get_location() const;
 };
 }
 }

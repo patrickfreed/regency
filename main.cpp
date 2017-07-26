@@ -4,6 +4,7 @@
 #include "Game.h"
 
 int main() {
+    srand(time(NULL));
 
     // load assets
     // TODO: load other assets here (names, textures, music)

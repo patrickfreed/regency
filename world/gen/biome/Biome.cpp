@@ -67,7 +67,7 @@ void Biome::name_regions(TileMap& tiles) {
             int x = i % WORLD_SIZE;
             int y = i / WORLD_SIZE;
 
-            tiles.get(x, y)->set_subregion_name(get_name() + std::to_string(count));
+            tiles.get(x, y).set_subregion_name(get_name() + std::to_string(count));
         }
         count++;
     }

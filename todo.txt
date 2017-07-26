@@ -31,3 +31,29 @@ World generation steps:
 	- choose settlements of antiquity
 	- simulate
 5b. choose settlements, generate relationships, generate populations
+
+
+
+======================
+game design:
+
+start: start as single actor
+  - starting member of your faction, but can leave,die, etc
+main game: can live as loner minecraft style (need to make this difficult)
+           alternatively, can travel and recruit followers into faction (M&B style)
+              - each actor has distinct personality traits that dictate what they do / how they interpret orders
+              - orders: fun aspect of game will be autonomy of members of your faction, but you need to be able to
+                        control your people to some extent. need to find line here.
+end goal: prosperity for your faction / not dying (DF style). Alternatively, becoming regent of entire
+          known world (M&B).
+
+gameplay: you control a faction of actors. You can issue direct commands to them and they will obey as if the orders
+          were their own ideas (you merely provide inspiration). issuing orders that contradict incentives may cause mental
+          issues among actors (idea).
+
+          the "game" here is providing what is essentially "divine inspiration" to the your followers. ideally, you will
+          become somewhat familiar with their "personalities", and getting them to cooperate and achieve is the primary
+          challenge. hopefully the ai will be advanced enough to do goofy stuff and act in unpredictable/complex ways.
+
+          I hope to be able to define loose objective/task/goals and let randomness and ai interactions define the rest.
+          Not sure how going to implement social interaction and all its complexities...

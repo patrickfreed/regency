@@ -15,6 +15,10 @@ class Mouse {
     static void set_window(sf::RenderWindow& w);
 
     static sf::Vector2i get_mouse_position();
+
+    static bool is_right_clicked();
+
+    static bool in_window();
 };
 }
 

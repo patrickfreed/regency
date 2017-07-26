@@ -9,9 +9,13 @@
 namespace regency {
 namespace entity {
 
+enum class Outcome { SUCCESS, FAILURE, ABORT, IN_PROGRESS };
+
 class Task {
   private:
-    virtual std::pair<int, int> find_target() = 0;
+    Outcome success() const;
+
+    virtual world::Location find_target() = 0;
 
     Objective* objective;
 
@@ -22,10 +26,11 @@ class Task {
         delete objective;
     }
 
-    virtual bool perform() = 0;
+    virtual Outcome perform() = 0;
 
   protected:
     Objective* get_objective();
+    Outcome _success;
 };
 }
 }

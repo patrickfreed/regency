@@ -4,16 +4,14 @@
 namespace regency {
 namespace entity {
 
-LocationObjective::LocationObjective(std::pair<int, int> destination) : destination(destination) {}
+LocationObjective::LocationObjective(world::Location start, world::Location destination)
+    : _start(start), destination(destination) {}
 
-float LocationObjective::completion(Actor& actor) {
-    std::tuple<int, int, int> loc = actor.get_location();
-
-    if (std::get<0>(loc) == destination.first && std::get<1>(loc) == destination.second) {
-        return 1;
-    } else {
-        return 0;
-    }
+double LocationObjective::completion(Actor& actor) {
+    auto distance = actor.get_location().distance_to(destination);
+    auto start_distance = _start.distance_to(destination);
+    auto ratio = distance / start_distance;
+    return 1.0 - ratio;
 }
 }
 }

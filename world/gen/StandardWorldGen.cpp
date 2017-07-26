@@ -36,7 +36,7 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
 
             // TODO: update this to something else
             // Generate world map
-            const Material* mat = tiles.get(x, y)->get_material();
+            const Material* mat = tiles.get(x, y).get_material();
             const sf::Color* color;
             if (x % 100 == 0 || y % 100 == 0) {
                 color = &sf::Color::Red;
@@ -59,8 +59,8 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
             };
 
             if (x > 0 && y > 0) {
-                const Material* m1 = tiles.get(x - 1, y)->get_material();
-                const Material* m2 = tiles.get(x, y - 1)->get_material();
+                const Material* m1 = tiles.get(x - 1, y).get_material();
+                const Material* m2 = tiles.get(x, y - 1).get_material();
 
                 if (equal(m1, m2) && equal(mat, m1)) {
                     ds.union_elements(ym1, xm1);
@@ -71,11 +71,11 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
                     ds.union_elements(id, ym1);
                 }
             } else if (x > 0) {
-                if (equal(mat, tiles.get(x - 1, y)->get_material())) {
+                if (equal(mat, tiles.get(x - 1, y).get_material())) {
                     ds.union_elements(id, xm1);
                 }
             } else if (y > 0) {
-                if (equal(mat, tiles.get(x, y - 1)->get_material())) {
+                if (equal(mat, tiles.get(x, y - 1).get_material())) {
                     ds.union_elements(id, ym1);
                 }
             }
@@ -99,7 +99,7 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
         int xs = sample % WORLD_SIZE;
         int ys = sample / WORLD_SIZE;
 
-        bool land = tiles.get(xs, ys)->get_material()->is_solid();
+        bool land = tiles.get(xs, ys).get_material()->is_solid();
         std::ostringstream oss;
 
         if (!land) {
@@ -122,8 +122,8 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
             int x = i % WORLD_SIZE;
             int y = i / WORLD_SIZE;
 
-            std::unique_ptr<Tile>& t = tiles.get(x, y);
-            t->set_region_name(oss.str());
+            Tile& t = tiles.get(x, y);
+            t.set_region_name(oss.str());
         }
     }
 

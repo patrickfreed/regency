@@ -11,7 +11,7 @@ class Objective {
   public:
     virtual ~Objective() {}
 
-    virtual float completion(Actor& actor) = 0;
+    virtual double completion(Actor& actor) = 0;
 };
 }
 }

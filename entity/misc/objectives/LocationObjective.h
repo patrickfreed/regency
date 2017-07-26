@@ -11,12 +11,13 @@ namespace entity {
 
 class LocationObjective : public Objective {
   public:
-    LocationObjective(std::pair<int, int> destination);
+    LocationObjective(world::Location start, world::Location destination);
 
-    virtual float completion(Actor& actor);
+    virtual double completion(Actor& actor);
 
   private:
-    std::pair<int, int> destination;
+    world::Location destination;
+    world::Location _start;
 };
 }
 }

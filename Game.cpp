@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Mouse.h"
+#include "entity/HumanActor.h"
 #include "world/gen/StandardWorldGen.h"
 #include "world/gen/biome/DesertBiome.h"
 #include "world/gen/biome/GrasslandBiome.h"
@@ -74,11 +75,15 @@ void Game::tick() {
                 break;
             } else if (currentEvent.type == sf::Event::KeyPressed) {
                 if (currentEvent.key.code == sf::Keyboard::G) {
-                    std::cout << "regenerating...";
+                    std::cout << "regenerating..." << std::endl;
                     world::gen::StandardWorldGen g = get_default_gen();
                     _world.generate(g);
                 } else if (currentEvent.key.code == sf::Keyboard::Z) {
                     _world.zoom();
+                } else if (currentEvent.key.code == sf::Keyboard::B) {
+                    std::shared_ptr<entity::HumanActor> actor =
+                        std::make_shared<entity::HumanActor>(_world);
+                    _world.spawn(actor);
                 }
             }
         }

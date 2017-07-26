@@ -1,6 +1,9 @@
 
 #include "HumanActor.h"
+#include <ctime>
+#include <iostream>
 
+#include "../Mouse.h"
 #include "misc/tasks/MovementTask.h"
 
 namespace regency {
@@ -8,13 +11,21 @@ namespace entity {
 
 void HumanActor::tick() {
     if (this->task_queue.empty()) {
-        this->task_queue.push(new MovementTask(*this, std::make_pair(rand() % 10, rand() % 10)));
-    } else {
-        Task* t = this->task_queue.front();
+        if (Mouse::is_right_clicked() && Mouse::in_window()) {
+            world::Tile& t = get_world().get_hovered_tile();
+            world::Location dest = t.get_location();
+            std::cout << "new dest: " << dest.str() << std::endl;
 
-        if (t->perform()) {
+            this->task_queue.push(
+                std::move(std::unique_ptr<MovementTask>(new MovementTask(*this, dest))));
+        }
+    } else {
+
+        Task& t = *task_queue.front();
+
+        if (t.perform() != Outcome::IN_PROGRESS) {
+            std::cout << get_location().str() << std::endl;
             task_queue.pop();
-            delete t;
         }
     }
 }
@@ -37,10 +48,6 @@ HumanActor::HumanActor(world::World& world) : Actor(world), drawable(sf::Vector2
 }
 
 sf::Drawable& HumanActor::get_drawable() {
-    int xx = this->x * TILE_SIZE;
-    int yy = this->y * TILE_SIZE;
-
-    this->drawable.setPosition(xx, yy);
     return this->drawable;
 }
 }

@@ -1,29 +1,34 @@
 #ifndef REGENCY_ENTITY_H
 #define REGENCY_ENTITY_H
 
-#include "../world/World.h"
-#include <SFML/Graphics/Drawable.hpp>
+#include "../world/Location.h"
+
 #include <string>
 
+#include <SFML/Graphics/Drawable.hpp>
+
 namespace regency {
+
+namespace world {
+class World;
+}
+
 namespace entity {
 
 class Entity {
   protected:
-    int x;
-    int y;
-    int z;
+    world::World& _world;
 
   private:
+    world::Location _location;
     std::string id;
-    world::World& _world;
 
   public:
     Entity(world::World& world);
 
     size_t operator()(const Entity& e);
 
-    std::tuple<int, int, int> get_location();
+    world::Location& get_location();
 
     world::World& get_world();
 

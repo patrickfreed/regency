@@ -2,11 +2,13 @@
 
 #include <iostream>
 
+#include "../entity/Actor.h"
+
 namespace regency {
 namespace world {
 
-Tile::Tile(unsigned int x, unsigned int y, const Material* material, double e, double m)
-    : x(x), y(y), _e(e), _m(m), to_render(true) {
+Tile::Tile(Location loc, const Material* material, double e, double m)
+    : _location(loc), _e(e), _m(m), to_render(true) {
     z = 0;
     mat.resize(1);
     mat[z] = material;
@@ -37,13 +39,14 @@ void Tile::render(sf::RenderWindow& window, int x, int y, int zoom_level) {
     }*/
 }
 
-void Tile::set_actor(Actor* actor) {
+void Tile::set_actor(std::shared_ptr<entity::Actor> actor) {
     this->actor = actor;
+
     this->pass_actor = true;
 }
 
-Actor* Tile::get_actor() {
-    return this->actor;
+std::shared_ptr<entity::Actor> Tile::get_actor() {
+    return actor;
 }
 
 void Tile::tick() {
@@ -65,12 +68,12 @@ void Tile::get_bounds(sf::RectangleShape& bounds) {
     bounds.setPosition(x * TILE_SIZE, y * TILE_SIZE);
 }
 
-const Material* Tile::get_material() {
-    return this->mat[z];
+const Material* Tile::get_material() const {
+    return mat[z];
 }
 
-std::string& Tile::get_region_name() {
-    return this->region_name;
+const std::string& Tile::get_region_name() const {
+    return region_name;
 }
 
 void Tile::set_region_name(const std::string& name) {
@@ -81,16 +84,23 @@ void Tile::set_subregion_name(const std::string& name) {
     _subregion_name = name;
 }
 
-double Tile::get_moisture() {
+double Tile::get_moisture() const {
     return _m;
 }
 
-double Tile::get_elevation() {
+double Tile::get_elevation() const {
     return _e;
 }
 
 const std::string& Tile::get_subregion_name() const {
     return _subregion_name;
 }
+
+const Location& Tile::get_location() const {
+    return _location;
+}
+
+Tile::Tile(int x, int y, const Material* material, double e, double m)
+    : Tile(Location{x, y}, material, e, m) {}
 }
 }

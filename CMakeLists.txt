@@ -55,7 +55,7 @@ set(SOURCE_FILES
         world/DisjointSet.cpp
         world/DisjointSet.h
         world/gen/StandardWorldGen.cpp
-        world/gen/StandardWorldGen.h world/TileMap.cpp world/TileMap.h)
+        world/gen/StandardWorldGen.h world/TileMap.cpp world/TileMap.h world/Location.cpp world/Location.h world/Direction.h world/PathFinder.cpp world/PathFinder.h world/Direction.cpp)
 
 add_executable(${NAME} ${SOURCE_FILES})
 

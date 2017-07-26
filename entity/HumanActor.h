@@ -2,6 +2,7 @@
 #ifndef REGENCY_HUMANACTOR_H
 #define REGENCY_HUMANACTOR_H
 
+#include <memory>
 #include <queue>
 
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -12,7 +13,7 @@
 namespace regency {
 namespace entity {
 
-class HumanActor : Actor {
+class HumanActor : public Actor {
   private:
     // personality
     int courage;
@@ -33,7 +34,7 @@ class HumanActor : Actor {
     std::pair<int, int> origin;
     int radius;
 
-    std::queue<Task*> task_queue;
+    std::queue<std::unique_ptr<Task>> task_queue;
 
     sf::RectangleShape drawable;
 

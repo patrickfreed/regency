@@ -11,7 +11,7 @@ class TileMap {
   public:
     TileMap(std::uint64_t size);
 
-    std::unique_ptr<Tile>& get(uint64_t x, uint64_t y);
+    Tile& get(uint64_t x, uint64_t y);
 
     void set(uint64_t x, uint64_t y, std::unique_ptr<Tile>&& tile);
 

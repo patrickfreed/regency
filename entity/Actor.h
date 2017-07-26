@@ -15,7 +15,7 @@ class Actor : public Entity {
 
     virtual sf::Drawable& get_drawable() = 0;
 
-    void move(world::World::Direction d);
+    bool move(world::Direction d);
 };
 }
 }
