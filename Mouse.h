@@ -18,6 +18,8 @@ class Mouse {
 
     static bool is_right_clicked();
 
+    static bool is_left_clicked();
+
     static bool in_window();
 };
 }

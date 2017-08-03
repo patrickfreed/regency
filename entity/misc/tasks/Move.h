@@ -8,10 +8,9 @@
 #include "../../Actor.h"
 #include "../Task.h"
 
-namespace regency {
-namespace entity {
+namespace regency::entity::task {
 
-class MovementTask : public Task {
+class Move : public Task {
   private:
     world::Location _dest;
 
@@ -21,13 +20,16 @@ class MovementTask : public Task {
     Actor& actor;
 
   public:
-    MovementTask(Actor& actor, world::Location destination);
+    Move(Actor& actor, world::Location destination);
 
     virtual Outcome perform();
 
+    virtual bool construct_plan() {
+        return true;
+    }
+
     virtual world::Location find_target();
 };
-}
 }
 
 #endif // REGENCY_MOVEMENTTASK_H

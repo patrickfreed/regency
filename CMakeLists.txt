@@ -27,8 +27,8 @@ set(SOURCE_FILES
         entity/misc/objectives/Objective.h
         entity/misc/objectives/NullObjective.cpp
         entity/misc/objectives/NullObjective.h
-        entity/misc/tasks/MovementTask.cpp
-        entity/misc/tasks/MovementTask.h
+        entity/misc/tasks/Move.cpp
+        entity/misc/tasks/Move.h
         entity/misc/objectives/LocationObjective.cpp
         entity/misc/objectives/LocationObjective.h
         Mouse.cpp
@@ -55,7 +55,7 @@ set(SOURCE_FILES
         world/DisjointSet.cpp
         world/DisjointSet.h
         world/gen/StandardWorldGen.cpp
-        world/gen/StandardWorldGen.h world/TileMap.cpp world/TileMap.h world/Location.cpp world/Location.h world/Direction.h world/PathFinder.cpp world/PathFinder.h world/Direction.cpp)
+        world/gen/StandardWorldGen.h world/TileMap.cpp world/TileMap.h world/Location.cpp world/Location.h world/Direction.h world/PathFinder.cpp world/PathFinder.h world/Direction.cpp entity/misc/tasks/Eat.cpp entity/misc/tasks/Eat.h entity/misc/tasks/Find.cpp entity/misc/tasks/Find.h)
 
 add_executable(${NAME} ${SOURCE_FILES})
 

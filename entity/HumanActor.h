@@ -15,6 +15,12 @@ namespace entity {
 
 class HumanActor : public Actor {
   private:
+    // biological stats
+    int hunger;
+    int health;
+    int thirst;
+    int energy;
+
     // personality
     int courage;
     int curiosity;
@@ -34,7 +40,7 @@ class HumanActor : public Actor {
     std::pair<int, int> origin;
     int radius;
 
-    std::queue<std::unique_ptr<Task>> task_queue;
+    std::queue<std::unique_ptr<task::Task>> task_queue;
 
     sf::RectangleShape drawable;
 

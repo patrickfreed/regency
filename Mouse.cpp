@@ -25,5 +25,9 @@ bool Mouse::is_right_clicked() {
     return sf::Mouse::isButtonPressed(sf::Mouse::Right);
 }
 
+bool Mouse::is_left_clicked() {
+    return sf::Mouse::isButtonPressed(sf::Mouse::Left);
+}
+
 sf::RenderWindow* Mouse::window;
 }

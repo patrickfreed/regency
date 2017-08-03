@@ -8,6 +8,10 @@ LocationObjective::LocationObjective(world::Location start, world::Location dest
     : _start(start), destination(destination) {}
 
 double LocationObjective::completion(Actor& actor) {
+    if (actor.get_location() == destination) {
+        return 1.0;
+    }
+
     auto distance = actor.get_location().distance_to(destination);
     auto start_distance = _start.distance_to(destination);
     auto ratio = distance / start_distance;

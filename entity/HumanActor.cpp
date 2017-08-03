@@ -1,10 +1,12 @@
 
 #include "HumanActor.h"
+#include <SFML/Window/Keyboard.hpp>
 #include <ctime>
 #include <iostream>
 
 #include "../Mouse.h"
-#include "misc/tasks/MovementTask.h"
+#include "misc/tasks/Eat.h"
+#include "misc/tasks/Move.h"
 
 namespace regency {
 namespace entity {
@@ -17,13 +19,15 @@ void HumanActor::tick() {
             std::cout << "new dest: " << dest.str() << std::endl;
 
             this->task_queue.push(
-                std::move(std::unique_ptr<MovementTask>(new MovementTask(*this, dest))));
+                std::move(std::unique_ptr<task::Move>(new task::Move(*this, dest))));
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)) {
+            std::cout << "adding new eat task" << std::endl;
+            task_queue.push(std::make_unique<task::Eat>(*this));
         }
     } else {
+        task::Task& t = *task_queue.front();
 
-        Task& t = *task_queue.front();
-
-        if (t.perform() != Outcome::IN_PROGRESS) {
+        if (t.do_task() != task::Outcome::IN_PROGRESS) {
             std::cout << get_location().str() << std::endl;
             task_queue.pop();
         }

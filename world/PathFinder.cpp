@@ -28,6 +28,7 @@ bool PathFinder::find_path() {
 
     _g_score[_src] = 0;
     _f_score[_src] = hueristic(_src, _dst);
+    _from[_src] = _src;
 
     auto lowest = [this, get]() {
         double low = INFINITY;
@@ -49,7 +50,7 @@ bool PathFinder::find_path() {
 
     auto traversable = [](Tile& tile) {
         double e = tile.get_elevation();
-        return e > DEFAULT_WATER_LEVEL && e < 0.8;
+        return tile.get_material()->is_solid() && e < 0.8;
     };
 
     World& world = _actor.get_world();
@@ -122,11 +123,19 @@ Location PathFinder::next() {
         throw std::runtime_error("no path");
     }
 
+    if (!has_next()) {
+        throw std::runtime_error("path exhausted");
+    }
+
     Location l = _path.back();
     _path.pop_back();
     // TODO: check if possible to move to here
 
     return l;
+}
+
+bool PathFinder::has_next() {
+    return _path.size() > 0;
 }
 }
 }

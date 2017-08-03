@@ -23,6 +23,8 @@ class PathFinder {
 
     bool is_finished();
 
+    bool has_next();
+
     Location next();
 
   private:
