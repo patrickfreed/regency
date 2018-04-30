@@ -12,8 +12,8 @@ namespace regency {
 namespace world {
 namespace gen {
 
-void FlatWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
-    world_map.create(WORLD_SIZE, WORLD_SIZE);
+void FlatWorldGen::generate(TileMap& tiles, sf::Texture& _world_map_texture) {
+    _world_map_texture.create(WORLD_SIZE, WORLD_SIZE);
     sf::Uint8* pixels = new sf::Uint8[WORLD_SIZE * WORLD_SIZE * 4];
 
     DisjointSet ds;
@@ -225,16 +225,16 @@ void FlatWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
         int xs = sample % WORLD_SIZE;
         int ys = sample / WORLD_SIZE;
 
-        std::string name = "sub_region" + std::to_string(sub_counter++);
+        std::string _name = "sub_region" + std::to_string(sub_counter++);
         for (auto& i : r.second) {
             int x = i % WORLD_SIZE;
             int y = i / WORLD_SIZE;
 
-            tiles.get(x, y)->set_subregion_name(name);
+            tiles.get(x, y)->set_subregion_name(_name);
         }
     }
 
-    world_map.update(pixels);
+    _world_map_texture.update(pixels);
 
     delete[] pixels;
 }

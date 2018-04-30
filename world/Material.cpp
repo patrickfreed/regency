@@ -8,8 +8,8 @@ namespace world {
 
 Material::Material(std::string name, int id, sf::Color c, bool water)
     : name(name), color(c), texture(), _water(water) {
-    /* if (!texture.loadFromFile("../res/material_" + name + ".png")) {
-        cout << "failed to load texture for " << name << endl;
+    /* if (!texture.loadFromFile("../res/material_" + _name + ".png")) {
+        cout << "failed to load texture for " << _name << endl;
     }*/
     this->tile_number = id;
 }

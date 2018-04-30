@@ -19,30 +19,16 @@ namespace world {
 using std::min;
 using std::max;
 
-World::World(std::string name) : name(name), tiles(WORLD_SIZE) {
-    this->texture.loadFromFile("../res/tileset.png");
-
-    this->gen.SetSeed(static_cast<int32_t>(time(NULL)));
-    this->_zoom_level = ZOOM_LOCAL;
-
+World::World(std::string name) : name(name), tiles(WORLD_SIZE), _zoom_level(ZOOM_LOCAL),
+                                 _tiles(Assets::tiles, get_tile_size()),
+                                 _trees(Assets::tree_texture, get_tile_size()) {
     // local zoom level 0
-    this->world_map.create(WINDOW_SIZE, WINDOW_SIZE);
-    this->sprite.setTexture(this->world_map);
+    _world_map_texture.create(WINDOW_SIZE, WINDOW_SIZE);
+    _world_map_sprite.setTexture(_world_map_texture);
 
     // global zoom level
-    this->pos.x = 0;
-    this->pos.y = 0;
-    this->tile_map.setPrimitiveType(sf::Quads);
-    this->tile_map.resize(RENDER_SIZE * RENDER_SIZE * 4);
-    for (int x = 0; x < RENDER_SIZE; ++x) {
-        for (int y = 0; y < RENDER_SIZE; ++y) {
-            sf::Vertex* quad = &(this->tile_map[(x + y * RENDER_SIZE) * 4]);
-            quad[0].position = sf::Vector2f(x * get_tile_size(), y * get_tile_size());
-            quad[1].position = sf::Vector2f((x + 1) * get_tile_size(), y * get_tile_size());
-            quad[2].position = sf::Vector2f((x + 1) * get_tile_size(), (y + 1) * get_tile_size());
-            quad[3].position = sf::Vector2f(x * get_tile_size(), (y + 1) * get_tile_size());
-        }
-    }
+    _pos.x = 0;
+    _pos.y = 0;
 }
 
 void World::generate(gen::WorldGen& generator) {
@@ -58,7 +44,7 @@ void World::generate(gen::WorldGen& generator) {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
 
-    generator.generate(tiles, world_map);
+    generator.generate(tiles, _world_map_texture);
 
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -77,8 +63,8 @@ void World::render(sf::RenderWindow& window) {
 
         for (int x = 0; x < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); x++) {
             for (int y = 0; y < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); y++) {
-                int xx = x + pos.x / get_tile_size();
-                int yy = (y + pos.y / get_tile_size());
+                int xx = x + _pos.x / get_tile_size();
+                int yy = (y + _pos.y / get_tile_size());
 
                 Tile& t = tiles.get(xx, yy);
                 bool is_focus = xx == focus.get_x() && yy == focus.get_y();
@@ -86,18 +72,18 @@ void World::render(sf::RenderWindow& window) {
                 int tile_number = is_focus ? 5 : t.get_material()->get_tile_number();
                 tile_number = t.get_actor() ? 15 : tile_number;
 
-                int tu = tile_number % (this->texture.getSize().x / get_tile_size());
-                int tv = tile_number / (this->texture.getSize().x / get_tile_size());
+                _tiles.set_id(x, y, tile_number);
 
-                sf::Vertex* q = &(this->tile_map[(x + y * RENDER_SIZE) * 4]);
-                q[0].texCoords = sf::Vector2f(tu * get_tile_size(), tv * get_tile_size());
-                q[1].texCoords = sf::Vector2f((tu + 1) * get_tile_size(), tv * get_tile_size());
-                q[2].texCoords =
-                    sf::Vector2f((tu + 1) * get_tile_size(), (tv + 1) * get_tile_size());
-                q[3].texCoords = sf::Vector2f(tu * get_tile_size(), (tv + 1) * get_tile_size());
+                if (t.get_tree().get_type() != TreeType::NONE) {
+                    _trees.set_id(x, y, 1);
+                } else {
+                    _trees.set_id(x, y, 0);
+                }
             }
         }
-        window.draw(tile_map, &texture);
+
+        _tiles.render(window);
+        _trees.render(window);
 
         if (Mouse::in_window()) {
             Tile& hover = get_hovered_tile();
@@ -117,16 +103,16 @@ void World::render(sf::RenderWindow& window) {
             window.draw(region_name_text);
         }
     } else {
-        // this->sprite.scale(1.0f, 1.0f);
-        // sprite.setPosition(static_cast<float>(-pos.x),
-        // static_cast<float>(-pos.y));
-        sprite.setTextureRect(sf::Rect<int>(pos.x, pos.y, WINDOW_SIZE, WINDOW_SIZE));
-        window.draw(sprite);
+        // this->_world_map_sprite.scale(1.0f, 1.0f);
+        // _world_map_sprite.setPosition(static_cast<float>(-_pos.x),
+        // static_cast<float>(-_pos.y));
+        _world_map_sprite.setTextureRect(sf::Rect<int>(_pos.x, _pos.y, WINDOW_SIZE, WINDOW_SIZE));
+        window.draw(_world_map_sprite);
     }
     sf::Text pos_text;
     pos_text.setFont(Assets::font);
-    pos_text.setString(std::to_string(pos.x / get_tile_size()) + ", " +
-                       std::to_string(pos.y / get_tile_size()));
+    pos_text.setString(std::to_string(_pos.x / get_tile_size()) + ", " +
+                       std::to_string(_pos.y / get_tile_size()));
 
     pos_text.setOutlineColor(sf::Color::Black);
     pos_text.setOutlineThickness(2.5);
@@ -176,11 +162,11 @@ void World::tick() {
         xdiff = dist;
     }
 
-    int nx = pos.x + xdiff;
-    int ny = pos.y + ydiff;
+    int nx = _pos.x + xdiff;
+    int ny = _pos.y + ydiff;
 
-    pos.x = min(max(0, nx), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
-    pos.y = min(max(0, ny), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
+    _pos.x = min(max(0, nx), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
+    _pos.y = min(max(0, ny), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
 
     // Game logic tick
     Location focus = get_focus();
@@ -192,22 +178,22 @@ void World::tick() {
 }
 
 void World::move_map(int dx, int dy) {
-    sf::IntRect rect = this->sprite.getTextureRect();
+    sf::IntRect rect = this->_world_map_sprite.getTextureRect();
 
     int left = rect.left + dx;
     int top = rect.top + dy;
 
     if (left >= 0 && left < WORLD_SIZE - WINDOW_SIZE && top >= 0 && top < WORLD_SIZE - WINDOW_SIZE)
-        this->sprite.setTextureRect(sf::IntRect(left, top, WINDOW_SIZE, WINDOW_SIZE));
+        this->_world_map_sprite.setTextureRect(sf::IntRect(left, top, WINDOW_SIZE, WINDOW_SIZE));
 }
 
 void World::move_camera(int dx, int dy) {
-    if (pos.x + dx + RENDER_SIZE * get_tile_size() < WORLD_SIZE * get_tile_size() * DUP_FACTOR) {
-        pos.x += dx;
+    if (_pos.x + dx + RENDER_SIZE * get_tile_size() < WORLD_SIZE * get_tile_size() * DUP_FACTOR) {
+        _pos.x += dx;
     }
 
-    if (pos.y + dy + RENDER_SIZE * get_tile_size() < WORLD_SIZE * get_tile_size() * DUP_FACTOR) {
-        pos.y += dy;
+    if (_pos.y + dy + RENDER_SIZE * get_tile_size() < WORLD_SIZE * get_tile_size() * DUP_FACTOR) {
+        _pos.y += dy;
     }
 }
 
@@ -217,23 +203,23 @@ void World::zoom() {
 
         sf::Vector2i mouse_pos = Mouse::get_mouse_position();
 
-        int left = (mouse_pos.x + pos.x) / 100 * 100 * get_tile_size();
-        int top = (mouse_pos.y + pos.y) / 100 * 100 * get_tile_size();
+        int left = (mouse_pos.x + _pos.x) / 100 * 100 * get_tile_size();
+        int top = (mouse_pos.y + _pos.y) / 100 * 100 * get_tile_size();
 
-        // int left = pos.x + max(0, mouse_pos.x - mouse_pos.x % 100) *
+        // int left = _pos.x + max(0, mouse_pos.x - mouse_pos.x % 100) *
         // get_tile_size() *
         // DUP_FACTOR;
-        // int top = pos.y + max(0, mouse_pos.y - mouse_pos.y % 100) *
+        // int top = _pos.y + max(0, mouse_pos.y - mouse_pos.y % 100) *
         // get_tile_size() * DUP_FACTOR;
 
-        pos.x = left;
-        pos.y = top;
+        _pos.x = left;
+        _pos.y = top;
     } else if (_zoom_level == ZOOM_LOCAL) {
-        pos.x /= get_tile_size();
-        pos.y /= get_tile_size();
+        _pos.x /= get_tile_size();
+        _pos.y /= get_tile_size();
 
-        pos.x /= 2;
-        pos.y /= 2;
+        _pos.x /= 2;
+        _pos.y /= 2;
 
         _zoom_level = ZOOM_GLOBAL;
     }
@@ -247,8 +233,8 @@ Tile& World::get_hovered_tile() {
         throw std::runtime_error("Mouse position out of frame.");
     }
 
-    int xx = pos.x / get_tile_size() + mouse_pos.x / get_tile_size();
-    int yy = pos.y / get_tile_size() + mouse_pos.y / get_tile_size();
+    int xx = _pos.x / get_tile_size() + mouse_pos.x / get_tile_size();
+    int yy = _pos.y / get_tile_size() + mouse_pos.y / get_tile_size();
 
     return tiles.get(xx, yy);
 }
@@ -291,8 +277,8 @@ void World::spawn(std::shared_ptr<entity::Actor> e) {
 }
 
 Location World::get_focus() {
-    return Location(pos.x / get_tile_size() + WINDOW_SIZE / 2 / get_tile_size(),
-                    pos.y / get_tile_size() + WINDOW_SIZE / 2 / get_tile_size());
+    return Location(_pos.x / get_tile_size() + WINDOW_SIZE / 2 / get_tile_size(),
+                    _pos.y / get_tile_size() + WINDOW_SIZE / 2 / get_tile_size());
 }
 
 std::vector<std::shared_ptr<entity::Actor>> World::get_nearby_actors(Location l, int radius) {

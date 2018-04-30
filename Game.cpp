@@ -21,8 +21,7 @@ world::gen::StandardWorldGen get_default_gen() {
 
     StandardWorldGen generator{"basic", DEFAULT_WATER_LEVEL};
 
-    std::unique_ptr<GrasslandBiome> grassland =
-        std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
+    std::unique_ptr<Biome> grassland(new GrasslandBiome(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0));
 
     std::unique_ptr<WaterBiome> water =
         std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);

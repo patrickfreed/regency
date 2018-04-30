@@ -18,7 +18,7 @@ bool PathFinder::find_path() {
         if (map.find(key) != map.end()) {
             return map[key];
         } else {
-            return INFINITY;
+            return 10000.0;
         }
     };
 
@@ -31,7 +31,7 @@ bool PathFinder::find_path() {
     _from[_src] = _src;
 
     auto lowest = [this, get]() {
-        double low = INFINITY;
+        double low = 100000;
         Location low_loc;
 
         for (auto& node : _open) {

@@ -8,7 +8,7 @@ int main() {
 
     // load assets
     // TODO: load other assets here (names, textures, music)
-    regency::Assets::font.loadFromFile("../res/font/pixelmix.ttf");
+    regency::Assets::load_assets();
 
     regency::Game g;
     g.start();

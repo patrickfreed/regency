@@ -3,7 +3,6 @@ The Storming Skerry
 The Sanguine Archipelago
 The Neverending Enclave
 Heb Archipelago
-Grylm Enclave
 Qloms Cay
 Qeqens Archipelago
 Qliakx Atoll
@@ -12,7 +11,6 @@ The Faraway Island
 The Dangerous Haven
 The Albatros Key
 The Autumn Peninsula
-Slurc Chain
 Srohz Cay
 Wumt Chain
 Tieh Atoll
@@ -25,19 +23,15 @@ The Boisterous Peninsula
 Ull Chain
 Gnumm Chain
 Qlils Atoll
-Blafirt Ait
-Klaylm Ait
 Uquth Chain
 The Unwelcoming Archipelago
 The Farthest Holm
-The Immense Islands
+The Immense Island
 The Fearsome Key
 Fukx Chain
 Grelz Archipelago
 Knoq Cay
-Vlajept Ait
 Zuwaln Chain
-Stykasp Enclave
 Onesh
 Anos
 Glizuth

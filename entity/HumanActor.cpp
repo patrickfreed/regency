@@ -18,7 +18,7 @@ void HumanActor::tick() {
             world::Location dest = t.get_location();
             std::cout << "new dest: " << dest.str() << std::endl;
 
-            this->task_queue.push(
+            task_queue.push(
                 std::move(std::unique_ptr<task::Move>(new task::Move(*this, dest))));
         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)) {
             std::cout << "adding new eat task" << std::endl;
@@ -35,24 +35,29 @@ void HumanActor::tick() {
 }
 
 HumanActor::HumanActor(world::World& world) : Actor(world), drawable(sf::Vector2f(10, 10)) {
-    this->courage = rand() % 100;
-    this->curiosity = rand() % 100;
-    this->intelligence = rand() % 100;
-    this->laziness = rand() % 100;
-    this->temper = rand() % 100;
+    courage = rand() % 100;
+    curiosity = rand() % 100;
+    intelligence = rand() % 100;
+    laziness = rand() % 100;
+    temper = rand() % 100;
 
-    this->axe = rand() % 100;
-    this->sword = rand() % 100;
-    this->fishing_rod = rand() % 100;
-    this->pickaxe = rand() % 100;
-    this->hammer = rand() % 100;
+    axe = rand() % 100;
+    sword = rand() % 100;
+    fishing_rod = rand() % 100;
+    pickaxe = rand() % 100;
+    hammer = rand() % 100;
 
-    this->origin = {0, 0};
-    this->radius = 5;
+    health = 100;
+    hunger = 0;
+    thirst = 0;
+    energy = 100;
+
+    origin = {0, 0};
+    radius = 5;
 }
 
 sf::Drawable& HumanActor::get_drawable() {
-    return this->drawable;
+    return drawable;
 }
 }
 }

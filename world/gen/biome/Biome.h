@@ -15,6 +15,7 @@
 #include "../../Tile.h"
 #include "../../World.h"
 #include "../RandomGenerator.h"
+#include "../../../Assets.h"
 
 namespace regency {
 namespace world {
@@ -22,13 +23,13 @@ namespace gen {
 
 class Biome {
   private:
-    std::string name;
-
+    std::string _name;
+    NameList _names;
     DisjointSet _ds;
 
   public:
     std::string& get_name() {
-        return name;
+        return _name;
     }
 
     const std::pair<double, double> get_elevation_range();
@@ -42,7 +43,7 @@ class Biome {
     virtual void name_regions(TileMap& tiles);
 
   protected:
-    Biome(std::string name, double min_e, double max_e, double min_m, double max_m);
+    Biome(std::string name, double min_e, double max_e, double min_m, double max_m, NameList names);
 
     virtual void generate_tile(unsigned int x, unsigned int y, double e, double m, TileMap& tiles);
 

@@ -3,9 +3,11 @@
 
 #include "Location.h"
 #include "Material.h"
+#include "Tree.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+
 #include <memory>
 
 namespace regency {
@@ -42,6 +44,8 @@ class Tile {
     std::string region_name;
     std::string _subregion_name;
 
+    Tree _tree;
+
   public:
     Tile(int x, int y, const Material* material, double e, double m);
 
@@ -51,9 +55,13 @@ class Tile {
 
     const Material* get_material() const;
 
-    void render(sf::RenderWindow& window, int x, int y, int zoom_level);
+    void render(sf::RenderTexture& window, int x, int y, int zoom_level);
 
     void set_actor(std::shared_ptr<entity::Actor> actor = {});
+
+    void set_tree(Tree tree);
+
+    Tree& get_tree();
 
     std::shared_ptr<entity::Actor> get_actor();
 

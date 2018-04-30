@@ -5,11 +5,13 @@ namespace regency {
 namespace world {
 namespace gen {
 
-RandomGenerator::RandomGenerator(int min, int max)
-    : _device(), generator(_device()), dist(min, max) {}
+std::random_device RandomGenerator::device;
+std::default_random_engine RandomGenerator::generator{device()};
+
+RandomGenerator::RandomGenerator(int min, int max) : _dist(min, max) {}
 
 int RandomGenerator::next_int() {
-    return this->dist(this->generator);
+    return _dist(generator);
 }
 
 int get_seed() {

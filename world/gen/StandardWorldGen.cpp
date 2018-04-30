@@ -34,19 +34,23 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
                 throw std::runtime_error("Bad generator spec, missed tile");
             }
 
-            // TODO: update this to something else
-            // Generate world map
-            const Material* mat = tiles.get(x, y).get_material();
-            const sf::Color* color;
-            if (x % 100 == 0 || y % 100 == 0) {
-                color = &sf::Color::Red;
-            } else {
-                color = &mat->get_color();
+            const Material *mat = tiles.get(x, y).get_material();
+
+            {
+                // TODO: update this to something else
+                // Generate world map
+                const sf::Color *color;
+                if (x % 100 == 0 || y % 100 == 0) {
+                    color = &sf::Color::Red;
+                } else {
+                    color = &mat->get_color();
+                }
+                pixels[(x + y * WORLD_SIZE) * 4 + 0] = color->r;
+                pixels[(x + y * WORLD_SIZE) * 4 + 1] = color->g;
+                pixels[(x + y * WORLD_SIZE) * 4 + 2] = color->b;
+                pixels[(x + y * WORLD_SIZE) * 4 + 3] = color->a;
+
             }
-            pixels[(x + y * WORLD_SIZE) * 4 + 0] = color->r;
-            pixels[(x + y * WORLD_SIZE) * 4 + 1] = color->g;
-            pixels[(x + y * WORLD_SIZE) * 4 + 2] = color->b;
-            pixels[(x + y * WORLD_SIZE) * 4 + 3] = color->a;
 
             // TODO: do this continent stuff elsewhere
             int id = x + y * WORLD_SIZE;
@@ -104,17 +108,17 @@ void StandardWorldGen::generate(TileMap& tiles, sf::Texture& world_map) {
 
         if (!land) {
             if (r.second.size() >= OCEAN_SIZE) {
-                oss << "Ocean " << ocean++;
+                oss << Assets::reserve_name(NameList::OCEANS);
             } else if (r.second.size() >= LAKE_SIZE) {
-                oss << "Lake " << lake++;
-            } else {
-                oss << "Pond " << pond++;
+                oss << Assets::reserve_name(NameList::LAKES);
+            } else { // TODO: get names for ponds / smaller bodies of water
+                oss << Assets::reserve_name(NameList::LAKES);
             }
         } else {
             if (r.second.size() >= CONTINENT_SIZE) {
-                oss << "Continent " << continent++;
+                oss << Assets::reserve_name(NameList::CONTINENTS);
             } else {
-                oss << "Island " << island++;
+                oss << Assets::reserve_name(NameList::ISLANDS);
             }
         }
 

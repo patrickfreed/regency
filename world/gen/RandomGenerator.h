@@ -9,9 +9,11 @@ namespace gen {
 
 class RandomGenerator {
   private:
-    std::random_device _device;
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> dist;
+
+    static std::default_random_engine generator;
+    static std::random_device device;
+
+    std::uniform_int_distribution<int> _dist;
 
   public:
     RandomGenerator(int min, int max);
@@ -21,6 +23,7 @@ class RandomGenerator {
 
 int get_seed();
 }
+
 }
 }
 

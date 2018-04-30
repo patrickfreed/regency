@@ -13,5 +13,5 @@ for match in files:
     f = match.group(1)
     if len(f) > 4 and f.endswith((".hpp", "cpp", ".hh", ".h")):
         subprocess.check_output("clang-format -i " + f, shell=True)
-        print "formatted " + f
+        print("formatted " + f)
 

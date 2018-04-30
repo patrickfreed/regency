@@ -8,8 +8,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-
-#include <noise/noise.h>
+#include <SFML/Graphics/RenderTexture.hpp>
 
 #include "../Defines.h"
 #include "../entity/Entity.h"
@@ -18,6 +17,7 @@
 #include "Tile.h"
 #include "TileMap.h"
 #include "gen/WorldGen.h"
+#include "RenderLayer.h"
 
 namespace regency {
 
@@ -30,9 +30,6 @@ namespace world {
 #define ZOOM_INVALID -1
 #define ZOOM_GLOBAL 1
 #define ZOOM_LOCAL 2
-
-// Maybe a class in future
-// typedef std::vector<std::vector<std::unique_ptr<Tile>>> TileMap;
 
 // Maybe a class in future
 typedef struct mat_def {
@@ -49,13 +46,12 @@ class World {
 
     int _zoom_level;
 
-    noise::module::Perlin gen;
+    RenderLayer _tiles;
+    RenderLayer _trees;
 
-    sf::Vector2i pos;
-    sf::Sprite sprite;
-    sf::Texture texture;
-    sf::VertexArray tile_map;
-    sf::Texture world_map;
+    sf::Vector2i _pos;
+    sf::Sprite _world_map_sprite;
+    sf::Texture _world_map_texture;
 
   public:
     World(std::string name);

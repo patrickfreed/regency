@@ -8,8 +8,8 @@ namespace regency {
 namespace world {
 namespace gen {
 
-Biome::Biome(std::string name, double min_e, double max_e, double min_m, double max_m)
-    : _e_range(min_e, max_e), _m_range(min_m, max_m), _ds(), name(name), _rnd(1, 100) {}
+Biome::Biome(std::string name, double min_e, double max_e, double min_m, double max_m, NameList names)
+    : _e_range(min_e, max_e), _m_range(min_m, max_m), _ds(), _name(name), _rnd(1, 100), _names(names) {}
 
 const std::pair<double, double> Biome::get_elevation_range() {
     return _e_range;
@@ -63,11 +63,13 @@ void Biome::name_regions(TileMap& tiles) {
     int count = 1;
 
     for (auto pair : _ds.get_sets()) {
+        std::string name = Assets::reserve_name(_names);
+
         for (auto i : pair.second) {
             int x = i % WORLD_SIZE;
             int y = i / WORLD_SIZE;
 
-            tiles.get(x, y).set_subregion_name(get_name() + std::to_string(count));
+            tiles.get(x, y).set_subregion_name(name);
         }
         count++;
     }
