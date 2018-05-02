@@ -55,7 +55,24 @@ set(SOURCE_FILES
         world/DisjointSet.cpp
         world/DisjointSet.h
         world/gen/StandardWorldGen.cpp
-        world/gen/StandardWorldGen.h world/TileMap.cpp world/TileMap.h world/Location.cpp world/Location.h world/Direction.h world/PathFinder.cpp world/PathFinder.h world/Direction.cpp entity/misc/tasks/Eat.cpp entity/misc/tasks/Eat.h entity/misc/tasks/Find.cpp entity/misc/tasks/Find.h world/Tree.cpp world/Tree.h world/RenderLayer.cpp world/RenderLayer.h)
+        world/gen/StandardWorldGen.h
+        world/TileMap.cpp
+        world/TileMap.h
+        world/Location.cpp
+        world/Location.h
+        world/Direction.h
+        world/PathFinder.cpp
+        world/PathFinder.h
+        world/Direction.cpp
+        entity/misc/tasks/Eat.cpp
+        entity/misc/tasks/Eat.h
+        entity/misc/tasks/Find.cpp
+        entity/misc/tasks/Find.h
+        world/Tree.cpp world/Tree.h
+        world/RenderLayer.cpp
+        world/RenderLayer.h
+        world/gen/fastnoise/FastNoise.cpp
+        world/gen/fastnoise/FastNoise.h)
 
 add_executable(${NAME} ${SOURCE_FILES})
 

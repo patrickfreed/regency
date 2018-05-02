@@ -9,7 +9,7 @@ namespace entity {
 
 class Objective {
   public:
-    virtual ~Objective() {}
+    virtual ~Objective() = default;
 
     virtual double completion(Actor& actor) = 0;
 };

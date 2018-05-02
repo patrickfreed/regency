@@ -18,6 +18,8 @@ class Task {
   public:
     Task(Actor& performer);
 
+    virtual ~Task() = default;
+
     virtual bool construct_plan() = 0;
 
     Outcome do_task();

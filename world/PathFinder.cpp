@@ -12,6 +12,12 @@ PathFinder::PathFinder(entity::Actor& actor,
     : _actor{actor}, _src{start}, _dst{dest}, _finished{false} {}
 
 bool PathFinder::find_path() {
+    World& world = _actor.get_world();
+
+    if (!world.is_traversable(_dst)) {
+        return false;
+    }
+
     _open.insert(_src);
 
     auto get = [](std::unordered_map<Location, double, LocationHasher>& map, const Location& key) {
@@ -48,13 +54,6 @@ bool PathFinder::find_path() {
         return low_loc;
     };
 
-    auto traversable = [](Tile& tile) {
-        double e = tile.get_elevation();
-        return tile.get_material()->is_solid() && e < 0.8;
-    };
-
-    World& world = _actor.get_world();
-
     while (!_open.empty()) {
         Location current = lowest();
 
@@ -75,7 +74,7 @@ bool PathFinder::find_path() {
 
             Tile& neighbor_tile = world.get_tile(neighbor);
 
-            if (_closed.find(neighbor) != _closed.end() || !traversable(neighbor_tile)) {
+            if (_closed.find(neighbor) != _closed.end() || !world.is_traversable(neighbor)) {
                 continue;
             }
 

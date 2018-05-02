@@ -10,6 +10,7 @@ namespace regency {
 sf::Font Assets::font;
 sf::Texture Assets::tree_texture;
 sf::Texture Assets::tiles;
+sf::Texture Assets::human_placeholder;
 std::vector<std::vector<std::string>> Assets::_name_lists{};
 
 const std::vector<std::string> names = {
@@ -20,7 +21,7 @@ const std::vector<std::string> names = {
         "lakes.txt",
         "deserts.txt",
         "grasslands.txt",
-        "mountains.txt"
+        "mountains.txt",
 };
 
 void read_to_vector(std::string filename, std::vector<std::string>& out) {
@@ -41,6 +42,7 @@ void Assets::load_assets() {
     font.loadFromFile("../res/font/pixelmix.ttf");
     tree_texture.loadFromFile("../res/tree.png");
     tiles.loadFromFile("../res/tileset.png");
+    human_placeholder.loadFromFile("../res/human.png");
 
     for (int x = 0; x < names.size(); x++) {
         std::vector<std::string> list;

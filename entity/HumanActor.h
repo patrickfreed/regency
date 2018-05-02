@@ -6,6 +6,8 @@
 #include <queue>
 
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 
 #include "Actor.h"
 #include "misc/Task.h"
@@ -16,33 +18,37 @@ namespace entity {
 class HumanActor : public Actor {
   private:
     // biological stats
-    int hunger;
-    int health;
-    int thirst;
-    int energy;
+    int _hunger;
+    int _health;
+    int _thirst;
+    int _energy;
 
     // personality
-    int courage;
-    int curiosity;
-    int intelligence;
-    int laziness;
-    int temper;
-    int sociality;
+    int _courage;
+    int _curiosity;
+    int _intelligence;
+    int _laziness;
+    int _temper;
+    int _sociality;
 
     // skill with tool
-    int axe;
-    int sword;
-    int fishing_rod;
-    int pickaxe;
-    int hammer;
+    int _axe;
+    int _sword;
+    int _fishing_rod;
+    int _pickaxe;
+    int _hammer;
 
-    // Work area (affected by curiosity, courage)
-    std::pair<int, int> origin;
-    int radius;
+    std::string _name;
+
+    // Work area (affected by _curiosity, _courage)
+    std::pair<int, int> _origin;
+    int _radius;
 
     std::queue<std::unique_ptr<task::Task>> task_queue;
 
     sf::RectangleShape drawable;
+
+    sf::Sprite _sprite;
 
   public:
     HumanActor(world::World& world);
@@ -50,8 +56,10 @@ class HumanActor : public Actor {
     virtual void tick();
 
     virtual sf::Drawable& get_drawable();
-};
-}
-}
 
+    void render(sf::RenderTexture render_texture);
+};
+
+}
+}
 #endif // REGENCY_HUMANACTOR_H

@@ -25,6 +25,7 @@ World::World(std::string name) : name(name), tiles(WORLD_SIZE), _zoom_level(ZOOM
     // local zoom level 0
     _world_map_texture.create(WINDOW_SIZE, WINDOW_SIZE);
     _world_map_sprite.setTexture(_world_map_texture);
+    _sprites.create(WINDOW_SIZE, WINDOW_SIZE);
 
     // global zoom level
     _pos.x = 0;
@@ -60,7 +61,7 @@ std::string& World::get_name() {
 void World::render(sf::RenderWindow& window) {
     if (_zoom_level == ZOOM_LOCAL) {
         Location focus = get_focus();
-
+        _sprites.clear(sf::Color::Transparent);
         for (int x = 0; x < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); x++) {
             for (int y = 0; y < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); y++) {
                 int xx = x + _pos.x / get_tile_size();
@@ -70,9 +71,16 @@ void World::render(sf::RenderWindow& window) {
                 bool is_focus = xx == focus.get_x() && yy == focus.get_y();
 
                 int tile_number = is_focus ? 5 : t.get_material()->get_tile_number();
-                tile_number = t.get_actor() ? 15 : tile_number;
+                // tile_number = t.get_actor() ? 15 : tile_number;
 
                 _tiles.set_id(x, y, tile_number);
+
+                if (t.get_actor()) {
+                    sf::Sprite& sprite = (sf::Sprite&) t.get_actor()->get_drawable();
+
+                    sprite.setPosition(x * get_tile_size(), y * get_tile_size());
+                    _sprites.draw(sprite);
+                }
 
                 if (t.get_tree().get_type() != TreeType::NONE) {
                     _trees.set_id(x, y, 1);
@@ -84,6 +92,10 @@ void World::render(sf::RenderWindow& window) {
 
         _tiles.render(window);
         _trees.render(window);
+
+        _sprites.display();
+        sf::Sprite entities{_sprites.getTexture()};
+        window.draw(entities);
 
         if (Mouse::in_window()) {
             Tile& hover = get_hovered_tile();
@@ -301,6 +313,13 @@ std::vector<std::shared_ptr<entity::Actor>> World::get_nearby_actors(Location l,
     }
 
     return actors;
+}
+
+bool World::is_traversable(const Location& loc) {
+    Tile& tile = get_tile(loc);
+
+    return tile.get_material()->is_solid() && tile.get_elevation() < 0.8
+           && tile.get_tree().get_type() == TreeType::NONE;
 }
 
 } // namespace world

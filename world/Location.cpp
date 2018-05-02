@@ -1,4 +1,6 @@
 
+#include <cmath>
+
 #include "Location.h"
 #include "World.h"
 

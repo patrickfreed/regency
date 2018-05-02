@@ -41,7 +41,7 @@ Outcome Task::do_task() {
             _status = Outcome::IN_PROGRESS;
         }
     } else if (_status == Outcome::IN_PROGRESS) {
-        if ((_status = perform()) == Outcome::SUCCESS) {
+        if ((_status = perform()) != Outcome::IN_PROGRESS) {
             _trailer(*this);
         }
     }

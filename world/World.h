@@ -46,6 +46,7 @@ class World {
 
     int _zoom_level;
 
+    sf::RenderTexture _sprites;
     RenderLayer _tiles;
     RenderLayer _trees;
 
@@ -87,6 +88,8 @@ class World {
     Location get_focus();
 
     std::vector<std::shared_ptr<entity::Actor>> get_nearby_actors(Location l, int radius = 5);
+
+    bool is_traversable(const Location& loc);
 };
 } // namespace world
 } // namespace entity

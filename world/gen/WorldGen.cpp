@@ -1,10 +1,6 @@
 
 #include "WorldGen.h"
 
-#include <iostream>
-
-#include "RandomGenerator.h"
-
 namespace regency {
 namespace world {
 namespace gen {
@@ -18,12 +14,13 @@ double WorldGen::m_noise(double nx, double ny) {
 }
 
 WorldGen::WorldGen() {
-    auto t = time(NULL);
-    auto seed_2 = t * t / 12 + 3;
+    int t = static_cast<int>(time(NULL));
+    int seed_2 = t * t / 12 + 3;
 
     _gen.SetSeed(t);
     _moisture.SetSeed(seed_2);
 }
+
 }
 }
 }

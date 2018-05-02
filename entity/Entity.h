@@ -26,13 +26,13 @@ class Entity {
   public:
     Entity(world::World& world);
 
+    virtual ~Entity() = default;
+
     size_t operator()(const Entity& e);
 
     world::Location& get_location();
 
     world::World& get_world();
-
-    virtual ~Entity() {}
 
     virtual sf::Drawable& get_drawable() = 0;
 };

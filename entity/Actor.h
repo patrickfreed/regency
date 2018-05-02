@@ -11,6 +11,8 @@ class Actor : public Entity {
   public:
     Actor(world::World& world);
 
+    virtual ~Actor() = default;
+
     virtual void tick() = 0;
 
     virtual sf::Drawable& get_drawable() = 0;
