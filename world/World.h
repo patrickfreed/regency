@@ -54,7 +54,11 @@ class World {
 
     bool spawn(std::shared_ptr<entity::Actor> e, Location location);
 
+    // Game world update
     void tick();
+
+    // UI, camera, menus, etc. update
+    void update();
 
     void zoom();
 
@@ -78,7 +82,7 @@ class World {
 
     std::optional<world::Location> get_traversable_neighbor(const Location& loc);
 
-    sf::Vector2f get_vector_from_location(const Location& loc);
+    sf::Vector2i get_vector_from_location(const Location& loc);
 
   private:
     std::string name;

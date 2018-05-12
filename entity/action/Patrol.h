@@ -3,6 +3,7 @@
 #define REGENCY_PATROL_H
 
 #include <world/Region.h>
+#include <entity/HumanActor.h>
 #include "Action.h"
 
 namespace regency::entity::action {
@@ -22,7 +23,7 @@ class Patrol : public Action {
   private:
     bool _following;
 
-    world::Location *_target;
+    std::shared_ptr<Actor> _target;
 
     world::Region _area;
 };

@@ -165,7 +165,7 @@ bool World::move(entity::Entity& e, world::Direction d) {
     return false;
 }
 
-void World::tick() {
+void World::update() {
     // Camera tick
     int xdiff = 0;
     int ydiff = 0;
@@ -189,7 +189,9 @@ void World::tick() {
 
     _pos.x = min(max(0, nx), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
     _pos.y = min(max(0, ny), (WORLD_SIZE - VIEW_DISTANCE) * get_tile_size());
+}
 
+void World::tick() {
     // Game logic tick
     Location focus = get_focus();
 
@@ -336,8 +338,10 @@ bool World::is_traversable(const Location& loc) {
            && tile.get_tree().get_type() == TreeType::NONE && !tile.get_actor();
 }
 
-sf::Vector2f World::get_vector_from_location(const Location &loc) {
+sf::Vector2i World::get_vector_from_location(const Location& loc) {
+    int tile_size = get_tile_size();
 
+    return {loc.get_x() * tile_size - _pos.x, loc.get_y() * tile_size - _pos.y};
 }
 
 std::optional<Location> World::get_traversable_neighbor(const Location& loc) {

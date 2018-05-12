@@ -12,6 +12,7 @@
 
 #include <entity/Actor.h>
 #include <entity/action/Action.h>
+#include <regency/entity/DamageSprite.h>
 
 namespace regency {
 namespace entity {
@@ -41,6 +42,8 @@ class HumanActor : public Actor {
     int _pickaxe;
     int _hammer;
 
+    int _recent_damage;
+
     bool _show_name;
     std::string _name;
 
@@ -52,6 +55,10 @@ class HumanActor : public Actor {
 
     sf::Text _text;
     sf::Sprite _sprite;
+
+    std::deque<DamageSprite> _damages;
+
+    sf::Time _last_attack;
 
   public:
     explicit HumanActor(world::World& world);
@@ -68,13 +75,19 @@ class HumanActor : public Actor {
 
     void render(sf::RenderTarget& target, int x, int y) override;
 
-    void assign_task(std::unique_ptr<action::Action> &&t, bool override = false);
+    void assign_task(std::unique_ptr<action::Action>&& t, bool override = false);
 
     void set_name_visible(bool name);
 
     sf::Int32 get_time_per_movement() override;
 
+    sf::Int32 get_time_per_attack() override;
+
     std::optional<world::Region> get_work_area();
+
+    int get_damage_dealt(Actor& recipient) override;
+
+    int damage(int amount) override;
 };
 
 }

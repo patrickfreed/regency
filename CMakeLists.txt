@@ -79,7 +79,7 @@ set(SOURCE_FILES
         item/Item.h
         entity/action/Harvest.cpp
         entity/action/Harvest.h
-        world/Region.cpp world/Region.h entity/action/Patrol.cpp entity/action/Patrol.h entity/action/Follow.cpp entity/action/Follow.h entity/action/Idle.cpp entity/action/Idle.h)
+        world/Region.cpp world/Region.h entity/action/Patrol.cpp entity/action/Patrol.h entity/action/Follow.cpp entity/action/Follow.h entity/action/Idle.cpp entity/action/Idle.h entity/DamageSprite.cpp entity/DamageSprite.h)
 
 add_executable(${NAME} ${SOURCE_FILES})
 

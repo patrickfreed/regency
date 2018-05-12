@@ -11,7 +11,8 @@ namespace regency {
 enum class Selector {
     NONE,
     HARVEST,
-    PATROL
+    PATROL,
+    DAMAGE
 };
 
 class Game {

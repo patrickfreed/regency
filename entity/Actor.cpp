@@ -27,5 +27,22 @@ bool Actor::get_alert() {
     return _alert;
 }
 
+int Actor::get_damage_dealt(Actor& recipient) {
+    return 0;
+}
+
+int Actor::attack(Actor& victim) {
+    sf::Time current_time = Game::get_instance().get_time();
+
+    if ((current_time - _last_attack).asMilliseconds() >= get_time_per_attack()) {
+        int dmg = get_damage_dealt(victim);
+        victim.damage(dmg);
+        _last_attack = Game::get_instance().get_time();
+        return dmg;
+    }
+
+    return 0;
+}
+
 }
 }

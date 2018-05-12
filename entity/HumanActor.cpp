@@ -10,6 +10,7 @@
 #include <regency/entity/action/Move.h>
 #include <regency/world/gen/RandomGenerator.h>
 #include <regency/Assets.h>
+#include <Game.h>
 
 namespace regency {
 namespace entity {
@@ -45,8 +46,10 @@ HumanActor::HumanActor(world::World& world) : Actor(world) {
     _text.setString(_name);
     _text.setFont(Assets::font);
     _text.setCharacterSize(12);
-    _text.setOutlineColor(sf::Color::Black);
+    _text.setOutlineColor(sf::Color::Red);
     _text.setOutlineThickness(1.0);
+
+    _recent_damage = 0;
 }
 
 void HumanActor::tick() {
@@ -77,12 +80,20 @@ const std::string& HumanActor::get_name() const {
 
 void HumanActor::render(sf::RenderTarget& target, int x, int y) {
     _sprite.setPosition(x, y);
-    target.draw(_sprite);
+
+    if (_recent_damage > 0) {
+        DamageSprite dsprite(_recent_damage, get_location());
+        _recent_damage = 0;
+        _damages.push_front(std::move(dsprite));
+        _sprite.setColor(sf::Color::Red);
+    } else {
+        target.draw(_sprite);
+    }
 
     world::World& world = get_world();
 
-    sf::IntRect tile_rect(x, y, world.get_tile_size(), world.get_tile_size());
-    if (_show_name || tile_rect.contains(Mouse::get_mouse_position())) {
+    // sf::IntRect tile_rect(x, y, world.get_tile_size(), world.get_tile_size());
+    if (_show_name) {
         sf::FloatRect bounds = _text.getGlobalBounds();
         _text.setPosition(x - bounds.width / 2 + 5, y - 15);
         target.draw(_text);
@@ -94,6 +105,18 @@ void HumanActor::render(sf::RenderTarget& target, int x, int y) {
         target.draw(alert);
     }
 
+    while (!_damages.empty() && !_damages.front().visible()) {
+        _damages.pop_front();
+    }
+
+    for (auto& damage_text : _damages) {
+        sf::Vector2i coords = get_world().get_vector_from_location(damage_text.get_source());
+        damage_text.render(target, coords.x, coords.y);
+    }
+
+    if (_damages.empty()) {
+        _sprite.setColor(sf::Color::White);
+    }
 }
 
 void HumanActor::assign_task(std::unique_ptr<action::Action>&& task, bool override) {
@@ -138,8 +161,29 @@ void HumanActor::pop_task() {
 
     _task_queue.front()->abort();
     _task_queue.pop();
+}
 
+int HumanActor::damage(int amount) {
+    _health -= amount;
+    _recent_damage += amount;
 
+    return _health;
+}
+
+int HumanActor::get_damage_dealt(Actor& recipient) {
+    world::gen::RandomGenerator rnd{_sword / 2, _sword};
+    int middle = rnd.next_int();
+
+    float temper_modifier = std::max(1.0f, (_temper / 100.0f) * 2.0f);
+
+    middle = static_cast<int>(middle * temper_modifier);
+
+    return middle;
+
+}
+
+sf::Int32 HumanActor::get_time_per_attack() {
+    return 500;
 }
 
 }

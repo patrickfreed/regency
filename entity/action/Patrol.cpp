@@ -7,7 +7,8 @@
 
 namespace regency::entity::action {
 
-Patrol::Patrol(Actor& performer, const world::Region& area) : Action(performer), _area(area), _following(false) {}
+Patrol::Patrol(Actor& performer, const world::Region& area) : Action(performer), _area(area), _following(false), _target(
+        nullptr) {}
 
 bool Patrol::construct_plan() {
     world::gen::RandomGenerator rng_x(_area.get_min_x(), _area.get_max_x());
@@ -28,6 +29,8 @@ Outcome Patrol::perform() {
 
         construct_plan();
         return Outcome::IN_PROGRESS;
+    } else if (_target && _target->get_location().distance_to(get_actor().get_location()) < 2){
+        get_actor().attack(*_target);
     }
 
     if (!_following && _area.contains(get_actor().get_location())) {
@@ -52,7 +55,7 @@ Outcome Patrol::perform() {
                     performer.set_alert(false);
                 };
 
-                _target = &target->get_location();
+                _target = target;
                 auto follow_action = std::make_unique<Follow>(get_actor(), target, _area);
                 follow_action->then(clear_alert);
                 add_sub_task(std::move(follow_action));

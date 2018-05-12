@@ -26,12 +26,21 @@ class Actor : public Entity {
 
     virtual sf::Int32 get_time_per_movement() = 0;
 
+    virtual sf::Int32 get_time_per_attack() = 0;
+
     void set_alert(bool alert);
 
     bool get_alert();
 
+    virtual int attack(Actor& victim);
+
+    virtual int get_damage_dealt(Actor& recipient);
+
+    virtual int damage(int amount) = 0;
+
   private:
     sf::Time _last_movement;
+    sf::Time _last_attack;
 
     bool _alert;
 };

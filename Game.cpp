@@ -112,6 +112,10 @@ void Game::tick() {
                             _action = Selector::HARVEST;
                             break;
                         }
+                        case sf::Keyboard::K: {
+                            _action = Selector::DAMAGE;
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -123,7 +127,15 @@ void Game::tick() {
                                 world::Tile& tile = _world.get_hovered_tile();
                                 auto tile_actor = tile.get_actor();
                                 if (tile_actor) {
-                                    focus_entity(tile_actor);
+                                    if (_action == Selector::DAMAGE) {
+                                        if (tile_actor->get_location().distance_to(_focus->get_location()) < 2) {
+                                            world::gen::RandomGenerator rnd{1, 15};
+                                            auto& actor = dynamic_cast<entity::HumanActor&>(*tile_actor);
+                                            actor.damage(rnd.next_int());
+                                        }
+                                    } else {
+                                        focus_entity(tile_actor);
+                                    }
                                 } else if (_focus) {
                                     mark = &tile.get_location();
                                 }
@@ -157,9 +169,9 @@ void Game::tick() {
                         world::Region region(*mark, other);
 
                         if (_action == Selector::HARVEST) {
-                            actor.assign_task(std::make_unique<entity::action::Harvest>(actor, region), false);
+                            actor.assign_task(std::make_unique<entity::action::Harvest>(actor, region), true);
                         } else if (_action == Selector::PATROL) {
-                            actor.assign_task(std::make_unique<entity::action::Patrol>(actor, region));
+                            actor.assign_task(std::make_unique<entity::action::Patrol>(actor, region), true);
                         }
 
                         mark = nullptr;
@@ -171,6 +183,7 @@ void Game::tick() {
             }
         }
 
+        _world.update();
         if (clock.getElapsedTime().asMilliseconds() >= MS_PER_TICK) {
             _world.tick();
             clock.restart();

@@ -14,7 +14,7 @@ Tile::Tile(int x, int y, const Material *material, double e, double m)
         : Tile(Location{x, y}, material, e, m) {}
 
 Tile::Tile(Location loc, const Material *material, double e, double m)
-        : _location(loc), _e(e), _m(m), to_render(true), _tree(TreeType::NONE, 0) {
+        : _location(loc), _e(e), _m(m), to_render(true), _tree(TreeType::NONE, 0), _highlight(Highlight::NONE) {
     z = 0;
     mat.resize(1);
     mat[z] = material;
