@@ -2,23 +2,17 @@
 #ifndef REGENCY_MOVEMENTTASK_H
 #define REGENCY_MOVEMENTTASK_H
 
-#include <list>
+#include <world/util/PathFinder.h>
+#include <entity/Actor.h>
+#include <entity/action/Action.h>
 
-#include "../../../world/PathFinder.h"
-#include "../../Actor.h"
-#include "../Task.h"
+namespace regency::entity::action {
 
-namespace regency::entity::task {
-
-class Move : public Task {
+class Move : public Action {
   private:
     world::Location _dest;
 
-    // TODO: think about moving this into actor?
     world::PathFinder _pf;
-
-    Actor& actor;
-
   public:
     Move(Actor& actor, world::Location destination);
 

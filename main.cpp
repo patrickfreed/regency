@@ -1,17 +1,10 @@
 #include <iostream>
 
-#include "Assets.h"
-#include "Game.h"
+#include <regency/Game.h>
 
 int main() {
-    srand(time(NULL));
-
-    // load assets
-    // TODO: load other assets here (names, textures, music)
-    regency::Assets::load_assets();
-
-    regency::Game g;
-    g.start();
+    regency::Game& game = regency::Game::get_instance();
+    game.start();
 
     std::cout << "Bye!" << std::endl;
     return 0;

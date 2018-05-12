@@ -10,7 +10,10 @@ namespace regency {
 sf::Font Assets::font;
 sf::Texture Assets::tree_texture;
 sf::Texture Assets::tiles;
+sf::Texture Assets::highlights;
 sf::Texture Assets::human_placeholder;
+sf::Texture Assets::alert;
+
 std::vector<std::vector<std::string>> Assets::_name_lists{};
 
 const std::vector<std::string> names = {
@@ -43,6 +46,8 @@ void Assets::load_assets() {
     tree_texture.loadFromFile("../res/tree.png");
     tiles.loadFromFile("../res/tileset.png");
     human_placeholder.loadFromFile("../res/human.png");
+    highlights.loadFromFile("../res/highlights.png");
+    alert.loadFromFile("../res/alert.png");
 
     for (int x = 0; x < names.size(); x++) {
         std::vector<std::string> list;
@@ -57,6 +62,8 @@ std::string Assets::reserve_name(NameList type) {
     if (type == NameList::NONE) {
         return "";
     }
+
+    return "placeholder";
 
     std::vector<std::string>& list = _name_lists[static_cast<int>(type)];
 

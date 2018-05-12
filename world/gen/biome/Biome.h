@@ -11,7 +11,7 @@
 #include <unordered_set>
 
 #include "../../../Defines.h"
-#include "../../DisjointSet.h"
+#include "../../util/DisjointSet.h"
 #include "../../Tile.h"
 #include "../../World.h"
 #include "../RandomGenerator.h"

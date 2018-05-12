@@ -2,7 +2,7 @@
 #ifndef REGENCY_TILEMAP_H
 #define REGENCY_TILEMAP_H
 
-#include "Tile.h"
+#include "../Tile.h"
 
 namespace regency {
 namespace world {

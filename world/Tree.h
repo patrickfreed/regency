@@ -17,6 +17,7 @@ class Tree {
     int _height;
 
   public:
+    Tree();
     Tree(TreeType type, int height);
 
     int get_height();

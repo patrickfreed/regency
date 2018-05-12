@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(regency)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(NAME regency)
 
@@ -21,16 +21,16 @@ set(SOURCE_FILES
         entity/Actor.h
         entity/HumanActor.cpp
         entity/HumanActor.h
-        entity/misc/Task.cpp
-        entity/misc/Task.h
-        entity/misc/objectives/Objective.cpp
-        entity/misc/objectives/Objective.h
-        entity/misc/objectives/NullObjective.cpp
-        entity/misc/objectives/NullObjective.h
-        entity/misc/tasks/Move.cpp
-        entity/misc/tasks/Move.h
-        entity/misc/objectives/LocationObjective.cpp
-        entity/misc/objectives/LocationObjective.h
+        entity/action/Action.cpp
+        entity/action/Action.h
+        entity/action/objectives/Objective.cpp
+        entity/action/objectives/Objective.h
+        entity/action/objectives/NullObjective.cpp
+        entity/action/objectives/NullObjective.h
+        entity/action/Move.cpp
+        entity/action/Move.h
+        entity/action/objectives/LocationObjective.cpp
+        entity/action/objectives/LocationObjective.h
         Mouse.cpp
         Mouse.h
         Defines.h
@@ -52,27 +52,34 @@ set(SOURCE_FILES
         Assets.h
         world/gen/FlatWorldGen.cpp
         world/gen/FlatWorldGen.h
-        world/DisjointSet.cpp
-        world/DisjointSet.h
+        world/util/DisjointSet.cpp
+        world/util/DisjointSet.h
         world/gen/StandardWorldGen.cpp
         world/gen/StandardWorldGen.h
-        world/TileMap.cpp
-        world/TileMap.h
+        world/util/TileMap.cpp
+        world/util/TileMap.h
         world/Location.cpp
         world/Location.h
         world/Direction.h
-        world/PathFinder.cpp
-        world/PathFinder.h
+        world/util/PathFinder.cpp
+        world/util/PathFinder.h
         world/Direction.cpp
-        entity/misc/tasks/Eat.cpp
-        entity/misc/tasks/Eat.h
-        entity/misc/tasks/Find.cpp
-        entity/misc/tasks/Find.h
+        entity/action/Eat.cpp
+        entity/action/Eat.h
+        entity/action/Find.cpp
+        entity/action/Find.h
         world/Tree.cpp world/Tree.h
-        world/RenderLayer.cpp
-        world/RenderLayer.h
+        world/util/RenderLayer.cpp
+        world/util/RenderLayer.h
         world/gen/fastnoise/FastNoise.cpp
-        world/gen/fastnoise/FastNoise.h)
+        world/gen/fastnoise/FastNoise.h
+        item/Inventory.cpp
+        item/Inventory.h
+        item/Item.cpp
+        item/Item.h
+        entity/action/Harvest.cpp
+        entity/action/Harvest.h
+        world/Region.cpp world/Region.h entity/action/Patrol.cpp entity/action/Patrol.h entity/action/Follow.cpp entity/action/Follow.h entity/action/Idle.cpp entity/action/Idle.h)
 
 add_executable(${NAME} ${SOURCE_FILES})
 
@@ -86,3 +93,6 @@ endif()
 
 include_directories(${NAME} "D:/Program\ Files\ (x86)/libnoise/include/")
 target_link_libraries(${NAME} "D:/Program\ Files\ (x86)/libnoise/lib/libnoise.a")
+
+include_directories(".")
+include_directories("..")

@@ -11,6 +11,7 @@
 #include <memory>
 
 namespace regency {
+
 namespace entity {
 class Actor;
 }
@@ -18,6 +19,12 @@ class Actor;
 namespace world {
 
 #define TILE_SIZE 1
+
+enum class Highlight {
+    NONE,
+    TEMPORARY,
+    PERMANENT
+};
 
 // class Actor;
 
@@ -35,6 +42,8 @@ class Tile {
 
     bool pass_actor;
     bool to_render;
+
+    Highlight _highlight;
 
     void get_bounds(sf::RectangleShape& bounds_in);
 
@@ -80,6 +89,10 @@ class Tile {
     double get_elevation() const;
 
     const Location& get_location() const;
+
+    void set_highlight(Highlight highlight);
+
+    Highlight get_highlight();
 };
 }
 }

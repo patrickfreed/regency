@@ -1,34 +1,35 @@
-#include "Game.h"
-#include "Mouse.h"
-#include "entity/HumanActor.h"
-#include "world/gen/StandardWorldGen.h"
-#include "world/gen/biome/DesertBiome.h"
-#include "world/gen/biome/GrasslandBiome.h"
-#include "world/gen/biome/MountainBiome.h"
-#include "world/gen/biome/WaterBiome.h"
+#include <regency/Game.h>
 
 #include <iostream>
 #include <sstream>
 #include <thread>
 
+#include <regency/Mouse.h>
+#include <regency/entity/action/Move.h>
+#include <regency/entity/action/Harvest.h>
+#include <regency/entity/HumanActor.h>
+#include <regency/world/Region.h>
+#include <regency/world/gen/StandardWorldGen.h>
+#include <regency/world/gen/biome/DesertBiome.h>
+#include <regency/world/gen/biome/GrasslandBiome.h>
+#include <regency/world/gen/biome/MountainBiome.h>
+#include <regency/world/gen/biome/WaterBiome.h>
+#include <regency/entity/action/Follow.h>
+#include <regency/entity/action/Patrol.h>
+
 namespace regency {
 
-Game::Game() : _world("world_name_placeholder") {}
+Game::Game() : _world("world_name_placeholder"), _action(Selector::NONE) {}
 
 world::gen::StandardWorldGen get_default_gen() {
     using namespace world::gen;
 
     StandardWorldGen generator{"basic", DEFAULT_WATER_LEVEL};
 
-    std::unique_ptr<Biome> grassland(new GrasslandBiome(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0));
-
-    std::unique_ptr<WaterBiome> water =
-        std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
-
-    std::unique_ptr<MountainBiome> mountain = std::make_unique<MountainBiome>(0.8, 1.0, 0.0, 1.0);
-
-    std::unique_ptr<DesertBiome> desert =
-        std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.4);
+    auto grassland = std::make_unique<GrasslandBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.2, 1.0);
+    auto water = std::make_unique<WaterBiome>(0.0, DEFAULT_WATER_LEVEL, 0.0, 1.0);
+    auto mountain = std::make_unique<MountainBiome>(0.8, 1.0, 0.0, 1.0);
+    auto desert = std::make_unique<DesertBiome>(DEFAULT_WATER_LEVEL, 0.8, 0.0, 0.4);
 
     generator.add_biome(std::move(grassland));
     generator.add_biome(std::move(water));
@@ -43,8 +44,7 @@ void Game::start() {
     _main_window.setFramerateLimit(60);
     Mouse::set_window(_main_window);
 
-    // load assets here - for now just Material colors (not textures...)
-    // Material::load_colors();
+    regency::Assets::load_assets();
 
     world::gen::StandardWorldGen g = get_default_gen();
     _world.generate(g);
@@ -52,50 +52,142 @@ void Game::start() {
     Game::tick();
 }
 
+
+
 void Game::tick() {
     sf::Event currentEvent;
     sf::Clock clock;
 
-    sf::Font font;
-    font.loadFromFile("../res/font/pixelmix.ttf");
-
-    sf::Text mouse_coords_text;
-    mouse_coords_text.setFont(font);
-    // mouse_coords_text.setFillColor(sf::Color::White);
-    // mouse_coords_text.setCharacterSize(10);
-    mouse_coords_text.setPosition(10, 10);
+    const world::Location *mark = nullptr;
 
     while (_main_window.isOpen()) {
         _main_window.clear(sf::Color(255, 0, 0));
 
         if (_main_window.pollEvent(currentEvent)) {
-            if (currentEvent.type == sf::Event::Closed) {
-                break;
-            } else if (currentEvent.type == sf::Event::KeyPressed) {
-                if (currentEvent.key.code == sf::Keyboard::G) {
-                    std::cout << "regenerating..." << std::endl;
-                    world::gen::StandardWorldGen g = get_default_gen();
-                    _world.generate(g);
-                } else if (currentEvent.key.code == sf::Keyboard::Z) {
-                    _world.zoom();
-                } else if (currentEvent.key.code == sf::Keyboard::B) {
-                    std::shared_ptr<entity::HumanActor> actor =
-                        std::make_shared<entity::HumanActor>(_world);
-                    _world.spawn(actor);
+            switch (currentEvent.type) {
+                case sf::Event::Closed:
+                    return;
+                case sf::Event::KeyPressed:
+                    switch (currentEvent.key.code) {
+                        case sf::Keyboard::G: {
+                            std::cout << "regenerating..." << std::endl;
+                            world::gen::StandardWorldGen g = get_default_gen();
+                            _world.generate(g);
+                            break;
+                        }
+                        case sf::Keyboard::Z:
+                            _world.zoom();
+                            break;
+                        case sf::Keyboard::B: {
+                            world::Location loc;
+
+                            if (Mouse::in_window()) {
+                                world::Tile& t = _world.get_hovered_tile();
+                                loc = t.get_location();
+                            }
+
+                            auto actor = std::make_shared<entity::HumanActor>(_world);
+                            _world.spawn(actor, loc);
+                            break;
+                        }
+                        case sf::Keyboard::F: {
+                            if (Mouse::in_window() && _focus) {
+                                world::Tile& t = _world.get_hovered_tile();
+                                auto target = t.get_actor();
+
+                                if (target) {
+                                    auto follow_task = std::make_unique<entity::action::Follow>(*_focus, target);
+                                    auto& humanactor = dynamic_cast<entity::HumanActor&>(*_focus);
+                                    humanactor.assign_task(std::move(follow_task));
+                                }
+                            }
+
+                            break;
+                        }
+                        case sf::Keyboard::P: {
+                            _action = Selector::PATROL;
+                            break;
+                        }
+                        case sf::Keyboard::H: {
+                            _action = Selector::HARVEST;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    switch (currentEvent.mouseButton.button) {
+                        case sf::Mouse::Left:
+                            if (Mouse::in_window()) {
+                                world::Tile& tile = _world.get_hovered_tile();
+                                auto tile_actor = tile.get_actor();
+                                if (tile_actor) {
+                                    focus_entity(tile_actor);
+                                } else if (_focus) {
+                                    mark = &tile.get_location();
+                                }
+                            }
+                            break;
+                        case sf::Mouse::Right:
+                            if (_focus && Mouse::in_window()) {
+                                world::Tile& tile = _world.get_hovered_tile();
+
+                                auto& actor = dynamic_cast<entity::HumanActor&>(*_focus);
+
+                                auto move = std::make_unique<entity::action::Move>(actor, tile.get_location());
+                                actor.assign_task(std::move(move), true);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case sf::Event::MouseButtonReleased: {
+                    if (!Mouse::in_window()) {
+                        break;
+                    }
+
+                    if (mark) {
+                        auto &actor = dynamic_cast<entity::HumanActor &>(*_focus);
+
+                        world::Tile &hover = _world.get_hovered_tile();
+                        const world::Location &other = hover.get_location();
+
+                        world::Region region(*mark, other);
+
+                        if (_action == Selector::HARVEST) {
+                            actor.assign_task(std::make_unique<entity::action::Harvest>(actor, region), false);
+                        } else if (_action == Selector::PATROL) {
+                            actor.assign_task(std::make_unique<entity::action::Patrol>(actor, region));
+                        }
+
+                        mark = nullptr;
+                    }
+                    break;
                 }
+                default:
+                    break;
             }
         }
 
-        _world.tick();
+        if (clock.getElapsedTime().asMilliseconds() >= MS_PER_TICK) {
+            _world.tick();
+            clock.restart();
+        }
         _world.render(_main_window);
 
-        sf::Vector2i mouse_coords = Mouse::get_mouse_position();
+        if (mark) {
+            if (Mouse::in_window()) {
+                world::Tile& hover = _world.get_hovered_tile();
+                const world::Location& other = hover.get_location();
 
-        std::ostringstream builder;
-        builder << mouse_coords.x << ", " << mouse_coords.y;
-        mouse_coords_text.setString(builder.str());
-
-        // _main_window.draw(mouse_coords_text);
+                world::Region region(*mark, other);
+                for (world::Tile& t : region) {
+                    t.set_highlight(world::Highlight::TEMPORARY);
+                }
+            }
+        }
 
         _main_window.display();
     }
@@ -103,5 +195,45 @@ void Game::tick() {
 
 world::World& Game::get_world() {
     return _world;
+}
+
+sf::Time Game::get_time() {
+    return _clock.getElapsedTime();
+}
+
+Game& Game::get_instance() {
+    static Game instance;
+
+    return instance;
+}
+
+void Game::focus_entity(std::shared_ptr<entity::Actor> e) {
+    // TODO: not necessarily human actor
+
+    if (_focus) {
+        auto& actor = dynamic_cast<entity::HumanActor&>(*_focus);
+        actor.set_name_visible(false);
+
+        auto work_area = actor.get_work_area();
+
+        if (work_area) {
+            for (world::Tile& t : *work_area) {
+                t.set_highlight(world::Highlight::NONE);
+            }
+        }
+    }
+
+    _focus = std::move(e);
+
+    auto& actor = dynamic_cast<entity::HumanActor&>(*_focus);
+    actor.set_name_visible(true);
+
+    auto work_area = actor.get_work_area();
+
+    if (work_area) {
+        for (world::Tile& t : *work_area) {
+            t.set_highlight(world::Highlight::PERMANENT);
+        }
+    }
 }
 }

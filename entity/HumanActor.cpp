@@ -1,42 +1,20 @@
 
-#include "HumanActor.h"
-#include <SFML/Window/Keyboard.hpp>
-#include <ctime>
+#include <regency/entity/HumanActor.h>
+
 #include <iostream>
 
-#include "../Mouse.h"
-#include "misc/tasks/Eat.h"
-#include "misc/tasks/Move.h"
-#include "../world/gen/RandomGenerator.h"
-#include "../Assets.h"
+#include <SFML/Window/Keyboard.hpp>
+
+#include <regency/Mouse.h>
+#include <regency/entity/action/Eat.h>
+#include <regency/entity/action/Move.h>
+#include <regency/world/gen/RandomGenerator.h>
+#include <regency/Assets.h>
 
 namespace regency {
 namespace entity {
 
-void HumanActor::tick() {
-    if (this->task_queue.empty()) {
-        if (Mouse::is_right_clicked() && Mouse::in_window()) {
-            world::Tile& t = get_world().get_hovered_tile();
-            world::Location dest = t.get_location();
-            std::cout << "new dest: " << dest.str() << std::endl;
-
-            task_queue.push(
-                    std::move(std::unique_ptr<task::Move>(new task::Move(*this, dest))));
-        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)) {
-            std::cout << "adding new eat task" << std::endl;
-            task_queue.push(std::make_unique<task::Eat>(*this));
-        }
-    } else {
-        task::Task& t = *task_queue.front();
-
-        if (t.do_task() != task::Outcome::IN_PROGRESS) {
-            std::cout << get_location().str() << std::endl;
-            task_queue.pop();
-        }
-    }
-}
-
-HumanActor::HumanActor(world::World& world) : Actor(world), drawable(sf::Vector2f(10, 10)) {
+HumanActor::HumanActor(world::World& world) : Actor(world) {
     world::gen::RandomGenerator rng{0, 100};
 
     _courage = rng.next_int();
@@ -60,16 +38,109 @@ HumanActor::HumanActor(world::World& world) : Actor(world), drawable(sf::Vector2
     _radius = 5;
 
     _name = Assets::reserve_name(NameList::PEOPLE);
+    _show_name = false;
 
     _sprite.setTexture(Assets::human_placeholder);
+
+    _text.setString(_name);
+    _text.setFont(Assets::font);
+    _text.setCharacterSize(12);
+    _text.setOutlineColor(sf::Color::Black);
+    _text.setOutlineThickness(1.0);
+}
+
+void HumanActor::tick() {
+    if (!_task_queue.empty()) {
+        action::Action& t = *_task_queue.front();
+
+        if (t.do_action() != action::Outcome::IN_PROGRESS) {
+            pop_task();
+
+            if (_show_name && !_task_queue.empty()) {
+                action::Action& next = *_task_queue.front();
+
+                for (world::Tile& tile : next.get_action_area()) {
+                    tile.set_highlight(world::Highlight::PERMANENT);
+                }
+            }
+        }
+    }
 }
 
 sf::Drawable& HumanActor::get_drawable() {
     return _sprite;
 }
 
-void HumanActor::render(sf::RenderTexture render_texture) {
+const std::string& HumanActor::get_name() const {
+    return _name;
+}
+
+void HumanActor::render(sf::RenderTarget& target, int x, int y) {
+    _sprite.setPosition(x, y);
+    target.draw(_sprite);
+
+    world::World& world = get_world();
+
+    sf::IntRect tile_rect(x, y, world.get_tile_size(), world.get_tile_size());
+    if (_show_name || tile_rect.contains(Mouse::get_mouse_position())) {
+        sf::FloatRect bounds = _text.getGlobalBounds();
+        _text.setPosition(x - bounds.width / 2 + 5, y - 15);
+        target.draw(_text);
+    }
+
+    if (get_alert()) {
+        sf::Sprite alert{Assets::alert};
+        alert.setPosition(x, y - 20);
+        target.draw(alert);
+    }
 
 }
+
+void HumanActor::assign_task(std::unique_ptr<action::Action>&& task, bool override) {
+    if (override) {
+        pop_task();
+    }
+
+    if (_show_name && _task_queue.empty()) {
+        for (world::Tile& tile : task->get_action_area()) {
+            tile.set_highlight(world::Highlight::PERMANENT);
+        }
+    }
+    _task_queue.push(std::move(task));
+}
+
+void HumanActor::set_name_visible(bool name) {
+    _show_name = name;
+}
+
+sf::Int32 HumanActor::get_time_per_movement() {
+    return 100;
+}
+
+std::optional<world::Region> HumanActor::get_work_area() {
+    if (!_task_queue.empty()) {
+        return _task_queue.front()->get_action_area();
+    }
+
+    return {};
+}
+
+void HumanActor::pop_task() {
+    if (_task_queue.empty()) {
+        return;
+    }
+
+    if (_show_name) {
+        for (world::Tile& tile : _task_queue.front()->get_action_area()) {
+            tile.set_highlight(world::Highlight::NONE);
+        }
+    }
+
+    _task_queue.front()->abort();
+    _task_queue.pop();
+
+
+}
+
 }
 }

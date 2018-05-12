@@ -19,9 +19,10 @@ namespace world {
 using std::min;
 using std::max;
 
-World::World(std::string name) : name(name), tiles(WORLD_SIZE), _zoom_level(ZOOM_LOCAL),
+World::World(std::string name) : name(std::move(name)), tiles(WORLD_SIZE), _zoom_level(ZOOM_LOCAL),
                                  _tiles(Assets::tiles, get_tile_size()),
-                                 _trees(Assets::tree_texture, get_tile_size()) {
+                                 _trees(Assets::tree_texture, get_tile_size()),
+                                 _highlights(Assets::highlights, get_tile_size()){
     // local zoom level 0
     _world_map_texture.create(WINDOW_SIZE, WINDOW_SIZE);
     _world_map_sprite.setTexture(_world_map_texture);
@@ -59,15 +60,17 @@ std::string& World::get_name() {
 }
 
 void World::render(sf::RenderWindow& window) {
+    int tile_size = get_tile_size();
+
     if (_zoom_level == ZOOM_LOCAL) {
         Location focus = get_focus();
         _sprites.clear(sf::Color::Transparent);
-        for (int x = 0; x < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); x++) {
-            for (int y = 0; y < min(WINDOW_SIZE / get_tile_size(), WORLD_SIZE); y++) {
-                int xx = x + _pos.x / get_tile_size();
-                int yy = (y + _pos.y / get_tile_size());
+        for (int x = 0; x < min(WINDOW_SIZE / tile_size, WORLD_SIZE); x++) {
+            for (int y = 0; y < min(WINDOW_SIZE / tile_size, WORLD_SIZE); y++) {
+                int xx = x + _pos.x / tile_size;
+                int yy = (y + _pos.y / tile_size);
 
-                Tile& t = tiles.get(xx, yy);
+                Tile &t = tiles.get(xx, yy);
                 bool is_focus = xx == focus.get_x() && yy == focus.get_y();
 
                 int tile_number = is_focus ? 5 : t.get_material()->get_tile_number();
@@ -76,10 +79,8 @@ void World::render(sf::RenderWindow& window) {
                 _tiles.set_id(x, y, tile_number);
 
                 if (t.get_actor()) {
-                    sf::Sprite& sprite = (sf::Sprite&) t.get_actor()->get_drawable();
-
-                    sprite.setPosition(x * get_tile_size(), y * get_tile_size());
-                    _sprites.draw(sprite);
+                    entity::Actor &actor = *t.get_actor();
+                    actor.render(_sprites, x * tile_size, y * tile_size);
                 }
 
                 if (t.get_tree().get_type() != TreeType::NONE) {
@@ -87,11 +88,19 @@ void World::render(sf::RenderWindow& window) {
                 } else {
                     _trees.set_id(x, y, 0);
                 }
+
+                _highlights.set_id(x, y, static_cast<int>(t.get_highlight()));
+
+                if (t.get_highlight() == Highlight::TEMPORARY) {
+                    t.set_highlight(Highlight::NONE);
+                }
+
             }
         }
 
         _tiles.render(window);
         _trees.render(window);
+        _highlights.render(window);
 
         _sprites.display();
         sf::Sprite entities{_sprites.getTexture()};
@@ -102,14 +111,12 @@ void World::render(sf::RenderWindow& window) {
             sf::Text region_name_text;
             region_name_text.setFont(Assets::font);
             region_name_text.setString(hover.get_region_name());
-            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover.get_region_name().length() * 10),
-                                         20);
+            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover.get_region_name().length() * 10), 20);
             region_name_text.setOutlineColor(sf::Color::Black);
             region_name_text.setOutlineThickness(2.5);
             window.draw(region_name_text);
 
-            region_name_text.setPosition(
-                WINDOW_SIZE / 2 - (hover.get_subregion_name().length() * 10), 55);
+            region_name_text.setPosition(WINDOW_SIZE / 2 - (hover.get_subregion_name().length() * 10), 55);
             region_name_text.setCharacterSize(25);
             region_name_text.setString(hover.get_subregion_name());
             window.draw(region_name_text);
@@ -121,6 +128,8 @@ void World::render(sf::RenderWindow& window) {
         _world_map_sprite.setTextureRect(sf::Rect<int>(_pos.x, _pos.y, WINDOW_SIZE, WINDOW_SIZE));
         window.draw(_world_map_sprite);
     }
+
+    /*
     sf::Text pos_text;
     pos_text.setFont(Assets::font);
     pos_text.setString(std::to_string(_pos.x / get_tile_size()) + ", " +
@@ -129,6 +138,7 @@ void World::render(sf::RenderWindow& window) {
     pos_text.setOutlineColor(sf::Color::Black);
     pos_text.setOutlineThickness(2.5);
     window.draw(pos_text);
+     */
 }
 
 bool World::move(entity::Entity& e, world::Direction d) {
@@ -273,19 +283,23 @@ int World::get_tile_size(int zoom_level) {
     }
 }
 
-void World::spawn(std::shared_ptr<entity::Actor> e) {
-    Location& location = e->get_location();
-
+bool World::spawn(std::shared_ptr<entity::Actor> e, Location location) {
     if (!location.is_valid()) {
-        throw std::runtime_error("Tried to spawn entity at invalid location: " + location.str());
+        return false;
     }
 
     Tile& tile = get_tile(location);
 
     if (!tile.get_actor()) {
-        tile.set_actor(e);
-        _entities["ASDF"] = e;
+        e->_location._x = location.get_x();
+        e->_location._y = location.get_y();
+        e->_id = ++_latest_entity_id;
+        tile.set_actor(std::move(e));
+
+        return true;
     }
+
+    return false;
 }
 
 Location World::get_focus() {
@@ -319,7 +333,22 @@ bool World::is_traversable(const Location& loc) {
     Tile& tile = get_tile(loc);
 
     return tile.get_material()->is_solid() && tile.get_elevation() < 0.8
-           && tile.get_tree().get_type() == TreeType::NONE;
+           && tile.get_tree().get_type() == TreeType::NONE && !tile.get_actor();
+}
+
+sf::Vector2f World::get_vector_from_location(const Location &loc) {
+
+}
+
+std::optional<Location> World::get_traversable_neighbor(const Location& loc) {
+    for (auto d : {Direction::NORTH, Direction::SOUTH, Direction::EAST, Direction::WEST}) {
+        Location adj = loc.get_adjacent(d);
+        if (is_traversable(adj)) {
+            return adj;
+        }
+    }
+
+    return {};
 }
 
 } // namespace world

@@ -1,9 +1,5 @@
-//
-// Created by Patrick on 4/26/2018.
-//
-
 #include "RenderLayer.h"
-#include "../Defines.h"
+#include "../../Defines.h"
 
 namespace regency {
 namespace world {

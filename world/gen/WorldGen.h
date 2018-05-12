@@ -14,7 +14,7 @@
 
 #include "../../Defines.h"
 #include "../Tile.h"
-#include "../TileMap.h"
+#include "../util/TileMap.h"
 
 namespace regency {
 namespace world {

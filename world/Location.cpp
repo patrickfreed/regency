@@ -24,9 +24,9 @@ world::Direction Location::get_direction_to(Location dest) const {
     }
 
     if (_y < dest.get_y()) {
-        ns = Direction::NORTH;
-    } else if (_y > dest.get_y()) {
         ns = Direction::SOUTH;
+    } else if (_y > dest.get_y()) {
+        ns = Direction::NORTH;
     }
 
     return static_cast<world::Direction>(ns + ew);
@@ -55,10 +55,10 @@ Location Location::get_adjacent(world::Direction d) const {
     if (d < Direction::NORTH) {
         dy = 0;
     } else if (d < Direction::SOUTH) {
-        dy = 1;
+        dy = -1;
         ns = Direction::NORTH;
     } else {
-        dy = -1;
+        dy = 1;
         ns = Direction::SOUTH;
     }
 
@@ -77,6 +77,10 @@ size_t Location::operator()(const Location& l) const {
 
 bool Location::operator==(const Location& other) const {
     return other._x == _x && other._y == _y;
+}
+
+bool Location::operator!=(const Location& other) const {
+    return !(*this == other);
 }
 
 std::size_t LocationHasher::operator()(const Location& k) const {

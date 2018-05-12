@@ -21,9 +21,12 @@ enum class NameList {
 class Assets {
   public:
     static sf::Font font;
+
     static sf::Texture tree_texture;
     static sf::Texture tiles;
     static sf::Texture human_placeholder;
+    static sf::Texture highlights;
+    static sf::Texture alert;
 
     static void load_assets();
     static std::string reserve_name(NameList type);

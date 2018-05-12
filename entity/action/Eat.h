@@ -2,12 +2,13 @@
 #ifndef REGENCY_EAT_H
 #define REGENCY_EAT_H
 
-#include "../Task.h"
+#include <entity/action/Action.h>
 
-namespace regency::entity::task {
-class Eat : public Task {
+namespace regency::entity::action {
+
+class Eat : public Action {
   public:
-    Eat(Actor& a);
+    explicit Eat(Actor& a);
 
     virtual Outcome perform();
 

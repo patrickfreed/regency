@@ -6,16 +6,18 @@
 #include <unordered_set>
 #include <unordered_set>
 
-#include "../entity/Actor.h"
-#include "Location.h"
-#include "World.h"
+#include "../../entity/Actor.h"
+#include "../Location.h"
+#include "../World.h"
 
 namespace regency {
 namespace world {
 
 class PathFinder {
   public:
-    PathFinder(entity::Actor& actor, const Location& start, const Location& dest);
+    PathFinder(const Location& start, const Location& dest);
+
+    PathFinder& operator=(PathFinder&& other);
 
     bool find_path();
 
@@ -27,9 +29,9 @@ class PathFinder {
 
     Location next();
 
-  private:
-    entity::Actor& _actor;
+    Location peek();
 
+  private:
     Location _src;
     Location _dst;
 

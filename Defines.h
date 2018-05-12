@@ -4,7 +4,7 @@
 
 namespace regency {
 
-#define WORLD_SIZE 1000
+#define WORLD_SIZE 100
 #define DUP_FACTOR 1
 
 #define OCEAN_SIZE 25000
@@ -15,6 +15,8 @@ namespace regency {
 #define RENDER_SIZE 100
 #define WINDOW_SIZE 1000
 #define VIEW_DISTANCE 100
+
+#define MS_PER_TICK 20
 }
 
 #endif // REGENCY_DEFINES_H

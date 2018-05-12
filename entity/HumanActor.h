@@ -8,15 +8,18 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
 
-#include "Actor.h"
-#include "misc/Task.h"
+#include <entity/Actor.h>
+#include <entity/action/Action.h>
 
 namespace regency {
 namespace entity {
 
 class HumanActor : public Actor {
   private:
+    void pop_task();
+
     // biological stats
     int _hunger;
     int _health;
@@ -38,26 +41,40 @@ class HumanActor : public Actor {
     int _pickaxe;
     int _hammer;
 
+    bool _show_name;
     std::string _name;
 
     // Work area (affected by _curiosity, _courage)
     std::pair<int, int> _origin;
     int _radius;
 
-    std::queue<std::unique_ptr<task::Task>> task_queue;
+    std::queue<std::unique_ptr<action::Action>> _task_queue;
 
-    sf::RectangleShape drawable;
-
+    sf::Text _text;
     sf::Sprite _sprite;
 
   public:
-    HumanActor(world::World& world);
+    explicit HumanActor(world::World& world);
 
-    virtual void tick();
+    HumanActor(const HumanActor& other) = delete;
 
-    virtual sf::Drawable& get_drawable();
+    void operator=(const HumanActor& other) = delete;
 
-    void render(sf::RenderTexture render_texture);
+    void tick() override;
+
+    sf::Drawable& get_drawable() override;
+
+    const std::string& get_name() const;
+
+    void render(sf::RenderTarget& target, int x, int y) override;
+
+    void assign_task(std::unique_ptr<action::Action> &&t, bool override = false);
+
+    void set_name_visible(bool name);
+
+    sf::Int32 get_time_per_movement() override;
+
+    std::optional<world::Region> get_work_area();
 };
 
 }

@@ -2,17 +2,17 @@
 #include "PathFinder.h"
 
 #include <iostream>
+#include <Game.h>
 
 namespace regency {
 namespace world {
 
-PathFinder::PathFinder(entity::Actor& actor,
-                       const regency::world::Location& start,
+PathFinder::PathFinder(const regency::world::Location& start,
                        const regency::world::Location& dest)
-    : _actor{actor}, _src{start}, _dst{dest}, _finished{false} {}
+    : _src{start}, _dst{dest}, _finished{false} {}
 
 bool PathFinder::find_path() {
-    World& world = _actor.get_world();
+    World& world = Game::get_instance().get_world();
 
     if (!world.is_traversable(_dst)) {
         return false;
@@ -29,7 +29,7 @@ bool PathFinder::find_path() {
     };
 
     auto hueristic = [](Location& start, Location& goal) {
-        return start.distance_to(goal, Distance::MANHATTAN);
+        return start.distance_to(goal, Distance::EUCLIDEAN);
     };
 
     _g_score[_src] = 0;
@@ -58,7 +58,6 @@ bool PathFinder::find_path() {
         Location current = lowest();
 
         if (current == _dst) {
-            std::cout << "finished path" << std::endl;
             _finished = true;
             return true;
         }
@@ -135,6 +134,25 @@ Location PathFinder::next() {
 
 bool PathFinder::has_next() {
     return _path.size() > 0;
+}
+
+Location PathFinder::peek() {
+    return _path.back();
+}
+
+PathFinder& PathFinder::operator=(PathFinder&& other) {
+    _f_score = std::move(other._f_score);
+
+    _finished = other._finished;
+
+    _from = std::move(other._from);
+    _open = std::move(other._open);
+    _closed = std::move(other._closed);
+
+    _src = other._src;
+    _dst = other._dst;
+
+    _path = std::move(other._path);
 }
 }
 }

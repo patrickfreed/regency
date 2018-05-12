@@ -42,6 +42,8 @@ class Location {
 
     bool operator==(const Location& other) const;
 
+    bool operator!=(const Location& other) const;
+
   private:
     friend class Entity;
     friend class World;

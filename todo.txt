@@ -55,5 +55,5 @@ gameplay: you control a faction of actors. You can issue direct commands to them
           become somewhat familiar with their "personalities", and getting them to cooperate and achieve is the primary
           challenge. hopefully the ai will be advanced enough to do goofy stuff and act in unpredictable/complex ways.
 
-          I hope to be able to define loose objective/task/goals and let randomness and ai interactions define the rest.
+          I hope to be able to define loose objective/action/goals and let randomness and ai interactions define the rest.
           Not sure how going to implement social interaction and all its complexities...

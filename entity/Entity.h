@@ -1,11 +1,12 @@
 #ifndef REGENCY_ENTITY_H
 #define REGENCY_ENTITY_H
 
-#include "../world/Location.h"
+#include <regency/world/Location.h>
 
 #include <string>
 
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Transformable.hpp>
 
 namespace regency {
 
@@ -16,17 +17,14 @@ class World;
 namespace entity {
 
 class Entity {
-  protected:
-    world::World& _world;
-
-  private:
-    world::Location _location;
-    std::string id;
-
   public:
-    Entity(world::World& world);
+    explicit Entity(world::World& world);
 
     virtual ~Entity() = default;
+
+    virtual bool operator==(const Entity& other);
+
+    virtual bool operator!=(const Entity& other);
 
     size_t operator()(const Entity& e);
 
@@ -35,6 +33,16 @@ class Entity {
     world::World& get_world();
 
     virtual sf::Drawable& get_drawable() = 0;
+
+    int get_id();
+
+    friend class world::World;
+
+  private:
+    world::World& _world;
+    world::Location _location;
+    std::string id;
+    int _id;
 };
 }
 }

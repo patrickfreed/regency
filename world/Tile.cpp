@@ -99,5 +99,13 @@ Tree &Tile::get_tree() {
     return _tree;
 }
 
+void Tile::set_highlight(Highlight highlight) {
+    _highlight = highlight;
+}
+
+Highlight Tile::get_highlight() {
+    return _highlight;
+}
+
 }
 }
