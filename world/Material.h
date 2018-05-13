@@ -51,6 +51,7 @@ class Material {
     static const Material PEATY_SOIL;
     static const Material LOAMY_SOIL;
     static const Material CHALKY_SOIL;
+    static const Material STONE_ROAD;
 };
 }
 }

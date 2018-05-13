@@ -4,7 +4,7 @@
 
 namespace regency {
 
-#define WORLD_SIZE 100
+#define WORLD_SIZE 250
 #define DUP_FACTOR 1
 
 #define OCEAN_SIZE 25000

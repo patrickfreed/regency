@@ -21,7 +21,9 @@ class PathFinder {
 
     bool find_path();
 
-    std::list<regency::world::Location>::iterator get_path();
+    std::vector<regency::world::Location>::iterator get_path();
+
+    std::vector<Location> get_path_copy();
 
     bool is_finished();
 
@@ -35,7 +37,7 @@ class PathFinder {
     Location _src;
     Location _dst;
 
-    std::list<Location> _path;
+    std::vector<Location> _path;
 
     std::unordered_set<Location, LocationHasher> _closed;
     std::unordered_set<Location, LocationHasher> _open;

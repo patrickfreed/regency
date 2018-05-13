@@ -61,7 +61,7 @@ class HumanActor : public Actor {
     sf::Time _last_attack;
 
   public:
-    explicit HumanActor(world::World& world);
+    explicit HumanActor(world::World& world, Faction *f);
 
     HumanActor(const HumanActor& other) = delete;
 

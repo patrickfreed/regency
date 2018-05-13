@@ -48,6 +48,7 @@ void Game::start() {
 
     world::gen::StandardWorldGen g = get_default_gen();
     _world.generate(g);
+    _faction_screen.set_factions(&_world.get_factions());
 
     Game::tick();
 }
@@ -86,22 +87,28 @@ void Game::tick() {
                                 loc = t.get_location();
                             }
 
-                            auto actor = std::make_shared<entity::HumanActor>(_world);
+                            auto actor = std::make_shared<entity::HumanActor>(_world, nullptr);
                             _world.spawn(actor, loc);
                             break;
                         }
                         case sf::Keyboard::F: {
-                            if (Mouse::in_window() && _focus) {
+                            if (Mouse::in_window() && !_focus_group.empty()) {
                                 world::Tile& t = _world.get_hovered_tile();
                                 auto target = t.get_actor();
 
                                 if (target) {
-                                    auto follow_task = std::make_unique<entity::action::Follow>(*_focus, target);
-                                    auto& humanactor = dynamic_cast<entity::HumanActor&>(*_focus);
-                                    humanactor.assign_task(std::move(follow_task));
+                                    for (auto& focus : _focus_group) {
+                                        auto follow_task = std::make_unique<entity::action::Follow>(*focus, target);
+                                        auto& humanactor = dynamic_cast<entity::HumanActor&>(*focus);
+                                        humanactor.assign_task(std::move(follow_task));
+                                    }
                                 }
                             }
 
+                            break;
+                        }
+                        case sf::Keyboard::J: {
+                            _faction_screen.set_visible(true);
                             break;
                         }
                         case sf::Keyboard::P: {
@@ -116,6 +123,10 @@ void Game::tick() {
                             _action = Selector::DAMAGE;
                             break;
                         }
+                        case sf::Keyboard::Period: {
+                            _action = Selector::SELECT;
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -127,28 +138,37 @@ void Game::tick() {
                                 world::Tile& tile = _world.get_hovered_tile();
                                 auto tile_actor = tile.get_actor();
                                 if (tile_actor) {
-                                    if (_action == Selector::DAMAGE) {
-                                        if (tile_actor->get_location().distance_to(_focus->get_location()) < 2) {
+                                    if (_action == Selector::DAMAGE && _focus_group.size() == 1) {
+                                        if (tile_actor->get_location().distance_to(_focus_group[0]->get_location()) < 2) {
                                             world::gen::RandomGenerator rnd{1, 15};
                                             auto& actor = dynamic_cast<entity::HumanActor&>(*tile_actor);
-                                            actor.damage(rnd.next_int());
+                                            _focus_group[0]->attack(actor);
                                         }
                                     } else {
                                         focus_entity(tile_actor);
                                     }
-                                } else if (_focus) {
+                                } else if (!_focus_group.empty() || _action == Selector::SELECT) {
                                     mark = &tile.get_location();
                                 }
                             }
                             break;
                         case sf::Mouse::Right:
-                            if (_focus && Mouse::in_window()) {
+                            if (!_focus_group.empty() && Mouse::in_window()) {
                                 world::Tile& tile = _world.get_hovered_tile();
 
-                                auto& actor = dynamic_cast<entity::HumanActor&>(*_focus);
-
-                                auto move = std::make_unique<entity::action::Move>(actor, tile.get_location());
-                                actor.assign_task(std::move(move), true);
+                                for (auto& focus : _focus_group) {
+                                    auto& actor = dynamic_cast<entity::HumanActor&>(*focus);
+                                    auto move = std::make_unique<entity::action::Move>(actor, tile.get_location());
+                                    actor.assign_task(std::move(move), true);
+                                }
+                            } else if (_focus_group.empty() && Mouse::in_window()) {
+                                world::Tile& tile = _world.get_hovered_tile();
+                                if (tile.get_actor()) {
+                                    std::shared_ptr<entity::Actor> tile_actor = tile.get_actor();
+                                    auto& actor = dynamic_cast<entity::HumanActor&>(*tile_actor);
+                                    ui::ActorInfo info(actor);
+                                    _ui_windows.push_back(info);
+                                }
                             }
                             break;
                         default:
@@ -161,17 +181,29 @@ void Game::tick() {
                     }
 
                     if (mark) {
-                        auto &actor = dynamic_cast<entity::HumanActor &>(*_focus);
-
                         world::Tile &hover = _world.get_hovered_tile();
                         const world::Location &other = hover.get_location();
 
                         world::Region region(*mark, other);
 
-                        if (_action == Selector::HARVEST) {
-                            actor.assign_task(std::make_unique<entity::action::Harvest>(actor, region), true);
-                        } else if (_action == Selector::PATROL) {
-                            actor.assign_task(std::make_unique<entity::action::Patrol>(actor, region), true);
+                        if (_action == Selector::SELECT) {
+                            bool first = true;
+                            for (world::Tile& t : region) {
+                                if (t.get_actor()) {
+                                    focus_entity(t.get_actor(), first);
+                                    first = false;
+                                }
+                            }
+                        } else if (!_focus_group.empty()) {
+                            for (auto& ptr : _focus_group) {
+                                auto &actor = dynamic_cast<entity::HumanActor &>(*ptr);
+
+                                if (_action == Selector::HARVEST) {
+                                    actor.assign_task(std::make_unique<entity::action::Harvest>(actor, region), true);
+                                } else if (_action == Selector::PATROL) {
+                                    actor.assign_task(std::make_unique<entity::action::Patrol>(actor, region), true);
+                                }
+                            }
                         }
 
                         mark = nullptr;
@@ -202,6 +234,12 @@ void Game::tick() {
             }
         }
 
+        for (auto& a : _ui_windows) {
+            a.render(_main_window);
+        }
+
+        _faction_screen.render(_main_window);
+
         _main_window.display();
     }
 }
@@ -220,25 +258,26 @@ Game& Game::get_instance() {
     return instance;
 }
 
-void Game::focus_entity(std::shared_ptr<entity::Actor> e) {
+void Game::focus_entity(std::shared_ptr<entity::Actor> e, bool defocus) {
     // TODO: not necessarily human actor
 
-    if (_focus) {
-        auto& actor = dynamic_cast<entity::HumanActor&>(*_focus);
-        actor.set_name_visible(false);
+    if (defocus && !_focus_group.empty()) {
+        for (auto& focus : _focus_group) {
+            auto& actor = dynamic_cast<entity::HumanActor&>(*focus);
+            actor.set_name_visible(false);
 
-        auto work_area = actor.get_work_area();
+            auto work_area = actor.get_work_area();
 
-        if (work_area) {
-            for (world::Tile& t : *work_area) {
-                t.set_highlight(world::Highlight::NONE);
+            if (work_area) {
+                for (world::Tile& t : *work_area) {
+                    t.set_highlight(world::Highlight::NONE);
+                }
             }
         }
+        _focus_group.clear();
     }
 
-    _focus = std::move(e);
-
-    auto& actor = dynamic_cast<entity::HumanActor&>(*_focus);
+    auto& actor = dynamic_cast<entity::HumanActor&>(*e);
     actor.set_name_visible(true);
 
     auto work_area = actor.get_work_area();
@@ -248,5 +287,7 @@ void Game::focus_entity(std::shared_ptr<entity::Actor> e) {
             t.set_highlight(world::Highlight::PERMANENT);
         }
     }
+
+    _focus_group.push_back(std::move(e));
 }
 }

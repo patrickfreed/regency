@@ -6,13 +6,15 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 
 #include <regency/entity/Entity.h>
+#include <SFML/Audio/Sound.hpp>
+#include "Faction.h"
 
 namespace regency {
 namespace entity {
 
 class Actor : public Entity {
   public:
-    explicit Actor(world::World& world);
+    explicit Actor(world::World& world, Faction *faction);
 
     ~Actor() override = default;
 
@@ -38,11 +40,25 @@ class Actor : public Entity {
 
     virtual int damage(int amount) = 0;
 
+    bool is_hostile(Actor& other);
+
+    entity::Faction *get_faction();
+
+    bool is_dead();
+
+    void die();
+
   private:
+    sf::Sound _punch;
+    sf::Sound _death;
+
     sf::Time _last_movement;
     sf::Time _last_attack;
 
     bool _alert;
+    bool _alive;
+
+    entity::Faction *_faction;
 };
 }
 }

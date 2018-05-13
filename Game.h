@@ -5,6 +5,8 @@
 #include <SFML/Window.hpp>
 
 #include <regency/world/World.h>
+#include <ui/ActorInfo.h>
+#include <ui/FactionInfo.h>
 
 namespace regency {
 
@@ -12,7 +14,8 @@ enum class Selector {
     NONE,
     HARVEST,
     PATROL,
-    DAMAGE
+    DAMAGE,
+    SELECT
 };
 
 class Game {
@@ -35,12 +38,16 @@ class Game {
     void tick();
 
     // TODO: entity not actor
-    void focus_entity(std::shared_ptr<entity::Actor> e);
+    void focus_entity(std::shared_ptr<entity::Actor> e, bool defocus = true);
 
     sf::RenderWindow _main_window;
     world::World _world;
 
-    std::shared_ptr<entity::Actor> _focus;
+    std::vector<std::shared_ptr<entity::Actor>> _focus_group;
+
+    std::vector<ui::ActorInfo> _ui_windows;
+
+    ui::FactionInfo _faction_screen;
 
     sf::Clock _clock;
 

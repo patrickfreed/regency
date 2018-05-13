@@ -95,7 +95,7 @@ bool PathFinder::find_path() {
     return false;
 }
 
-std::list<Location>::iterator PathFinder::get_path() {
+std::vector<Location>::iterator PathFinder::get_path() {
     if (!_finished) {
         throw std::runtime_error("Not finished path yet");
     }
@@ -153,6 +153,11 @@ PathFinder& PathFinder::operator=(PathFinder&& other) {
     _dst = other._dst;
 
     _path = std::move(other._path);
+}
+
+std::vector<Location> PathFinder::get_path_copy() {
+    get_path();
+    return _path;
 }
 }
 }

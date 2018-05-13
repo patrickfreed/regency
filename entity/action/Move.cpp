@@ -34,7 +34,8 @@ Outcome Move::perform() {
         world::World& world = get_actor().get_world();
         if (!world.is_traversable(next)) {
             std::cout << "obstacle, re doing pathfind" << std::endl;
-            _pf = world::PathFinder(get_actor().get_location(), _dest);
+            // _pf = world::PathFinder(get_actor().get_location(), _dest);
+            return Outcome::FAILURE;
         }
     }
 

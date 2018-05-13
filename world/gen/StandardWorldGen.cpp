@@ -146,6 +146,10 @@ StandardWorldGen::StandardWorldGen(std::string name, double water_level)
 void StandardWorldGen::add_biome(std::unique_ptr<Biome>&& biome) {
     _subregions.push_back(std::move(biome));
 }
+
+std::vector<std::unique_ptr<Biome>>& StandardWorldGen::get_subregions() {
+    return _subregions;
+}
 }
 }
 }

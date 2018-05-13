@@ -16,6 +16,8 @@ class StandardWorldGen : public WorldGen {
 
     void add_biome(std::unique_ptr<Biome>&& biome);
 
+    std::vector<std::unique_ptr<Biome>>& get_subregions();
+
     // Not implemented for now, will be used to make custom biomes loaded from
     // file.
     std::unique_ptr<Biome> make_biome(std::string name);

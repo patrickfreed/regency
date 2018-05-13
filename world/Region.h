@@ -3,9 +3,10 @@
 
 #include <regency/world/Location.h>
 #include <regency/world/Tile.h>
-#include <regency/world/World.h>
 
 namespace regency::world {
+
+class World;
 
 // Rectangular region
 // May support more complex regions (circles, triangles, n-gons) in future.
@@ -19,6 +20,14 @@ class Region {
     Region& operator=(const Region& other);
 
     Location get_closest_point(Location other);
+
+    bool is_on_border(const Location& l);
+
+    bool intersects(Region& other);
+
+    int get_width();
+
+    int get_height();
 
     bool is_marked(int x, int y)const;
 

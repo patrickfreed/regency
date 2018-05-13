@@ -3,6 +3,7 @@
 #define REGENCY_ASSETS_H
 
 #include <SFML/Graphics/Font.hpp>
+#include <SFML/Audio.hpp>
 
 namespace regency {
 
@@ -16,6 +17,8 @@ enum class NameList {
     DESERTS = 5,
     GRASSLANDS = 6,
     MOUNTAINS = 7,
+    FACTIONS = 8,
+    SETTLEMENTS = 9,
 };
 
 class Assets {
@@ -27,6 +30,10 @@ class Assets {
     static sf::Texture human_placeholder;
     static sf::Texture highlights;
     static sf::Texture alert;
+    static sf::Texture bones;
+
+    static sf::SoundBuffer punch1;
+    static sf::SoundBuffer death;
 
     static void load_assets();
     static std::string reserve_name(NameList type);

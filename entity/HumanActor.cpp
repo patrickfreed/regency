@@ -15,7 +15,7 @@
 namespace regency {
 namespace entity {
 
-HumanActor::HumanActor(world::World& world) : Actor(world) {
+HumanActor::HumanActor(world::World& world, Faction *f) : Actor(world, f) {
     world::gen::RandomGenerator rng{0, 100};
 
     _courage = rng.next_int();
@@ -46,13 +46,25 @@ HumanActor::HumanActor(world::World& world) : Actor(world) {
     _text.setString(_name);
     _text.setFont(Assets::font);
     _text.setCharacterSize(12);
-    _text.setOutlineColor(sf::Color::Red);
+    _text.setOutlineColor(sf::Color::Black);
     _text.setOutlineThickness(1.0);
 
     _recent_damage = 0;
 }
 
 void HumanActor::tick() {
+    if (is_dead()) {
+        return;
+    } else if (_health <= 0) {
+        die();
+        while (!_task_queue.empty()) {
+            pop_task();
+        }
+        _sprite.setTexture(Assets::bones);
+        DamageSprite dsprite(get_name() + " died!", get_location());
+        _damages.push_front(std::move(dsprite));
+    }
+
     if (!_task_queue.empty()) {
         action::Action& t = *_task_queue.front();
 
@@ -82,7 +94,7 @@ void HumanActor::render(sf::RenderTarget& target, int x, int y) {
     _sprite.setPosition(x, y);
 
     if (_recent_damage > 0) {
-        DamageSprite dsprite(_recent_damage, get_location());
+        DamageSprite dsprite(std::to_string(_recent_damage), get_location());
         _recent_damage = 0;
         _damages.push_front(std::move(dsprite));
         _sprite.setColor(sf::Color::Red);
@@ -96,6 +108,15 @@ void HumanActor::render(sf::RenderTarget& target, int x, int y) {
     if (_show_name) {
         sf::FloatRect bounds = _text.getGlobalBounds();
         _text.setPosition(x - bounds.width / 2 + 5, y - 15);
+
+        if (get_faction()) {
+            if (get_faction()->friendly()) {
+                _text.setOutlineColor(sf::Color::Green);
+            } else {
+                _text.setOutlineColor(sf::Color::Red);
+            }
+        }
+
         target.draw(_text);
     }
 
@@ -171,12 +192,13 @@ int HumanActor::damage(int amount) {
 }
 
 int HumanActor::get_damage_dealt(Actor& recipient) {
-    world::gen::RandomGenerator rnd{_sword / 2, _sword};
+    world::gen::RandomGenerator rnd{1, 10};
     int middle = rnd.next_int();
 
-    float temper_modifier = std::max(1.0f, (_temper / 100.0f) * 2.0f);
+    float sword_modifier = 1.0f + _sword / 100.0f;
+    float temper_modifier = 1.0f + _temper / 200.0f;
 
-    middle = static_cast<int>(middle * temper_modifier);
+    middle = static_cast<int>(middle * temper_modifier * sword_modifier);
 
     return middle;
 

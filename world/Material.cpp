@@ -53,5 +53,6 @@ const Material Material::SAND("sand", 11, sf::Color(234, 216, 82));
 const Material Material::SALT_WATER("salt_water", 12, sf::Color(0, 0, 150), true);
 const Material Material::ROCK("rock", 13, sf::Color(128, 128, 128));
 const Material Material::SNOW("snow", 14, sf::Color(255, 255, 255));
+const Material Material::PLACEHOLDER("placeholder", 15, sf::Color(0, 0, 0));
 }
 }

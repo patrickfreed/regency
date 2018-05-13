@@ -13,6 +13,10 @@ sf::Texture Assets::tiles;
 sf::Texture Assets::highlights;
 sf::Texture Assets::human_placeholder;
 sf::Texture Assets::alert;
+sf::Texture Assets::bones;
+
+sf::SoundBuffer Assets::punch1;
+sf::SoundBuffer Assets::death;
 
 std::vector<std::vector<std::string>> Assets::_name_lists{};
 
@@ -25,6 +29,8 @@ const std::vector<std::string> names = {
         "deserts.txt",
         "grasslands.txt",
         "mountains.txt",
+        "factions.txt",
+        "settlements.txt"
 };
 
 void read_to_vector(std::string filename, std::vector<std::string>& out) {
@@ -48,11 +54,16 @@ void Assets::load_assets() {
     human_placeholder.loadFromFile("../res/human.png");
     highlights.loadFromFile("../res/highlights.png");
     alert.loadFromFile("../res/alert.png");
+    bones.loadFromFile("../res/skeleton.png");
+
+    punch1.loadFromFile("../res/sound/punch1.ogg");
+    death.loadFromFile("../res/sound/death.wav");
 
     for (int x = 0; x < names.size(); x++) {
         std::vector<std::string> list;
         read_to_vector("../res/names/" + names[x], list);
-        _name_lists.push_back(std::move(list));
+        std::shuffle(list.begin(), list.end(), world::gen::RandomGenerator::get_generator());
+        _name_lists.push_back(list);
     }
 
     std::cout << "Done." << std::endl;
@@ -63,17 +74,14 @@ std::string Assets::reserve_name(NameList type) {
         return "";
     }
 
-    return "placeholder";
+    // return "placeholder";
 
     std::vector<std::string>& list = _name_lists[static_cast<int>(type)];
 
-    world::gen::RandomGenerator rnd(0, (int) list.size());
+    std::string name = list.back();
+    list.pop_back();
 
-    int index = rnd.next_int();
-    std::string out = list[index];
-    list.erase(list.begin() + index);
-
-    return out;
+    return name;
 
 }
 

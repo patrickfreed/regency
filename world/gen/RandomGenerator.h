@@ -19,6 +19,8 @@ class RandomGenerator {
     RandomGenerator(int min, int max);
 
     int next_int();
+
+    static std::default_random_engine& get_generator();
 };
 
 int get_seed();

@@ -30,7 +30,9 @@ Outcome Patrol::perform() {
         construct_plan();
         return Outcome::IN_PROGRESS;
     } else if (_target && _target->get_location().distance_to(get_actor().get_location()) < 2){
-        get_actor().attack(*_target);
+        if (get_actor().is_hostile(*_target)) {
+            get_actor().attack(*_target);
+        }
     }
 
     if (!_following && _area.contains(get_actor().get_location())) {
@@ -40,7 +42,7 @@ Outcome Patrol::perform() {
         if (nearby_actors.size() > 1) {
             std::shared_ptr<Actor> target;
             for (auto& actor : nearby_actors) {
-                if (*actor != get_actor() && _area.contains(actor->get_location())) {
+                if (*actor != get_actor() && _area.contains(actor->get_location()) && get_actor().is_hostile(*actor)) {
                     target = actor;
                     break;
                 }

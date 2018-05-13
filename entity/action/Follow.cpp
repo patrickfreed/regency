@@ -12,9 +12,14 @@ Follow::Follow(Actor& performer, std::shared_ptr<Actor> target, world::Region bo
         Action(performer, bounds), _target(std::move(target)) {}
 
 Outcome Follow::perform() {
+    if (_target->is_dead()) {
+        return Outcome::ABORT;
+    }
+
     if (_last_known != _target->get_location()) {
-        std::cout << "target moved, popping idle or move task" << std::endl;
-        pop_sub_task();
+        // std::cout << "target moved, popping idle or move task" << std::endl;
+        if (has_sub_tasks())
+            pop_sub_task();
         if (!construct_plan()) {
             return Outcome::FAILURE;
         }
@@ -22,7 +27,7 @@ Outcome Follow::perform() {
 
     if (Action::perform() == Outcome::SUCCESS) {
         add_sub_task(std::make_unique<Idle>(get_actor()));
-        std::cout << "got there, assigning idle" << std::endl;
+        // std::cout << "got there, assigning idle" << std::endl;
     }
 
     return Outcome::IN_PROGRESS;
@@ -30,7 +35,7 @@ Outcome Follow::perform() {
 
 bool Follow::construct_plan() {
     if (!get_action_area().contains(_target->get_location())) {
-        std::cout << "target not in bounds" << std::endl;
+        // std::cout << "target not in bounds" << std::endl;
         return false;
     }
 
@@ -42,7 +47,7 @@ bool Follow::construct_plan() {
         return true;
     }
 
-    std::cout << "no traversables" << std::endl;
+    // std::cout << "no traversables" << std::endl;
     return false;
 }
 }

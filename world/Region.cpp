@@ -122,6 +122,10 @@ Location Region::get_closest_point(Location other) {
     return Location{x, y};
 }
 
+bool Region::is_on_border(const Location& l) {
+    return contains(l) && (l.get_y() == _min_y || l.get_y() == _max_y || l.get_x() == _max_x || l.get_x() == _min_x);
+}
+
 Region::RegionIterator::RegionIterator(const Region& region) {
     _world = &region._world;
 
@@ -160,5 +164,19 @@ bool Region::RegionIterator::operator==(const Region::RegionIterator &other) con
 
 bool Region::RegionIterator::operator!=(const Region::RegionIterator &other) const {
     return !(other == *this);
+}
+
+int Region::get_width() {
+    return _max_x - _min_x + 1;
+}
+
+int Region::get_height() {
+    return _max_y - _min_y + 1;
+}
+
+bool Region::intersects(Region& other) {
+    if (_min_x > other._max_x || other._min_x > _max_x) {
+        return false;
+    } else return !(_min_y > other._max_y || other._min_y > _max_y);
 }
 }

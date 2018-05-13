@@ -18,6 +18,8 @@
 #include <regency/world/util/TileMap.h>
 #include <regency/world/gen/WorldGen.h>
 #include <regency/world/util/RenderLayer.h>
+#include <regency/world/Settlement.h>
+#include <entity/Faction.h>
 
 namespace regency {
 
@@ -27,7 +29,7 @@ class Actor;
 
 namespace world {
 
-#define ZOOM_INVALID -1
+#define ZOOM_INVALID (-1)
 #define ZOOM_GLOBAL 1
 #define ZOOM_LOCAL 2
 
@@ -84,6 +86,12 @@ class World {
 
     sf::Vector2i get_vector_from_location(const Location& loc);
 
+    void generate_factions();
+
+    void generate_settlements();
+
+    std::vector<entity::Faction>& get_factions();
+
   private:
     std::string name;
 
@@ -104,6 +112,9 @@ class World {
     sf::Texture _world_map_texture;
 
     int _latest_entity_id;
+
+    std::vector<Settlement> _settlements;
+    std::vector<entity::Faction> _factions;
 };
 } // namespace world
 } // namespace entity
