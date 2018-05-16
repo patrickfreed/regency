@@ -1,6 +1,3 @@
-//
-// Created by Patrick on 5/12/2018.
-//
 
 #ifndef REGENCY_FACTIONINFO_H
 #define REGENCY_FACTIONINFO_H

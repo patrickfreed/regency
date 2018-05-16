@@ -4,7 +4,7 @@
 
 namespace regency::entity {
 
-Faction::Faction(std::string name) : _name(std::move(name)), _population(0) {
+Faction::Faction(std::string name) : _name(std::move(name)), _population(0), _defeater{nullptr} {
     world::gen::RandomGenerator rnd{1, 10};
     _friendly = rnd.next_int() <= 5;
 }
@@ -35,5 +35,15 @@ void Faction::decrease_population() {
 
 int Faction::get_population() {
     return _population;
+}
+
+void Faction::defeat(Faction& defeater) {
+    if (get_population() == 0 && !_defeater) {
+        _defeater = &defeater;
+    }
+}
+
+Faction *Faction::get_defeater() {
+    return _defeater;
 }
 }

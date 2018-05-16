@@ -34,6 +34,9 @@ class Assets {
 
     static sf::SoundBuffer punch1;
     static sf::SoundBuffer death;
+    static sf::SoundBuffer victory;
+
+    static bool render_names;
 
     static void load_assets();
     static std::string reserve_name(NameList type);

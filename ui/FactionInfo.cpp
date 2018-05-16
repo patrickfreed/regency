@@ -1,12 +1,10 @@
-//
-// Created by Patrick on 5/12/2018.
-//
+#include <regency/ui/FactionInfo.h>
 
-#include "FactionInfo.h"
-#include <regency/Defines.h>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <Assets.h>
 #include <SFML/Graphics/Text.hpp>
+
+#include <regency/Defines.h>
+#include <regency/Assets.h>
 
 #define OFFSET 100.0f
 
@@ -21,6 +19,8 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
     screen.setPosition(OFFSET / 2.0f, OFFSET / 2.0f);
     screen.setSize({WINDOW_SIZE - OFFSET, WINDOW_SIZE - OFFSET});
     screen.setFillColor(sf::Color(73, 73, 68));
+    screen.setOutlineColor(sf::Color::Black);
+    screen.setOutlineThickness(2.0f);
     target.draw(screen);
 
     auto bounds = screen.getGlobalBounds();
@@ -29,7 +29,7 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
     heading.setFont(Assets::font);
     heading.setFillColor(sf::Color::White);
     heading.setOutlineColor(sf::Color::Black);
-    heading.setOutlineThickness(1.0f);
+    heading.setOutlineThickness(1.5f);
     heading.setCharacterSize(30);
     heading.setString("Faction Information");
 
@@ -39,7 +39,7 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
 
     int num = 0;
 
-    float padding = 75;
+    float padding = 25;
     float height = (bounds.height - 200) / _factions->size() - padding;
     float width = (bounds.width - 100);
     float start = 100;
@@ -50,6 +50,8 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
         float x = bounds.left + 50;
         float y = bounds.top + start + (padding + height) * num;
 
+        float left_align = x + 10;
+
         entry.setPosition(x, y);
         entry.setSize({width, height});
         entry.setFillColor(sf::Color(79, 81, 79));
@@ -58,43 +60,59 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
         target.draw(entry);
 
         sf::Text name_text;
-        name_text.setPosition(x + 10, y + 10);
+        name_text.setPosition(left_align, y + 10);
         name_text.setFont(Assets::font);
         name_text.setFillColor(sf::Color::White);
         name_text.setOutlineColor(sf::Color::Black);
         name_text.setOutlineThickness(1.0f);
-        name_text.setCharacterSize(20);
+        name_text.setCharacterSize(25);
         name_text.setString(f.get_name());
 
         target.draw(name_text);
 
         sf::Text status_text;
-        status_text.setPosition(x + 10, y + 50);
+        status_text.setPosition(left_align, y + 75);
         status_text.setFont(Assets::font);
         status_text.setFillColor(sf::Color::White);
         status_text.setOutlineColor(sf::Color::Black);
         status_text.setOutlineThickness(1.0f);
-        status_text.setCharacterSize(12);
+        status_text.setCharacterSize(18);
         status_text.setString("Status:");
         target.draw(status_text);
 
         auto status_bounds = status_text.getGlobalBounds();
-        status_text.setPosition(status_bounds.left + status_bounds.width + 5, status_bounds.top);
+        status_text.setPosition(status_bounds.left + status_bounds.width + 5, y + 75);
 
         if (f.get_population() == 0) {
             status_text.setString("Extinct");
         } else if (f.friendly()) {
             status_text.setString("Friendly");
             status_text.setOutlineColor(sf::Color::Green);
-            status_text.setOutlineThickness(0.75f);
         } else {
             status_text.setString("Hostile");
             status_text.setOutlineColor(sf::Color::Red);
         }
         target.draw(status_text);
 
-        for (auto& name : f.get_settlments()) {
+        status_bounds = status_text.getGlobalBounds();
+        status_text.setPosition(left_align, status_bounds.top + 20);
+        status_text.setString("Population: " + std::to_string(f.get_population()));
+        status_text.setOutlineColor(sf::Color::Black);
+        target.draw(status_text);
 
+        status_bounds = status_text.getGlobalBounds();
+        float vertical_align = status_bounds.top + 20;
+        status_text.setPosition(left_align, vertical_align);
+        status_text.setString("Settlements: ");
+        target.draw(status_text);
+
+        if (f.get_population() > 0) {
+            for (auto& name : f.get_settlments()) {
+                status_bounds = status_text.getGlobalBounds();
+                status_text.setPosition(status_bounds.left + status_bounds.width, vertical_align);
+                status_text.setString(name);
+                target.draw(status_text);
+            }
         }
 
         ++num;

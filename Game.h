@@ -7,6 +7,7 @@
 #include <regency/world/World.h>
 #include <ui/ActorInfo.h>
 #include <ui/FactionInfo.h>
+#include <ui/FactionDefeated.h>
 
 namespace regency {
 
@@ -45,6 +46,8 @@ class Game {
 
     std::vector<std::shared_ptr<entity::Actor>> _focus_group;
 
+    // TODO: consolodate
+    std::vector<ui::FactionDefeated> _defeated_windows;
     std::vector<ui::ActorInfo> _ui_windows;
 
     ui::FactionInfo _faction_screen;
@@ -52,6 +55,9 @@ class Game {
     sf::Clock _clock;
 
     Selector _action;
+
+    std::unordered_map<entity::Faction *, bool> _faction_statuses;
+    sf::Sound _victory_sound;
 };
 }
 

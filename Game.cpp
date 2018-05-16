@@ -16,6 +16,7 @@
 #include <regency/world/gen/biome/WaterBiome.h>
 #include <regency/entity/action/Follow.h>
 #include <regency/entity/action/Patrol.h>
+#include <regency/ui/FactionDefeated.h>
 
 namespace regency {
 
@@ -49,6 +50,12 @@ void Game::start() {
     world::gen::StandardWorldGen g = get_default_gen();
     _world.generate(g);
     _faction_screen.set_factions(&_world.get_factions());
+
+    for (entity::Faction& f : _world.get_factions()) {
+        _faction_statuses[&f] = true;
+    }
+
+    _victory_sound.setBuffer(Assets::victory);
 
     Game::tick();
 }
@@ -127,6 +134,10 @@ void Game::tick() {
                             _action = Selector::SELECT;
                             break;
                         }
+                        case sf::Keyboard::N: {
+                            Assets::render_names = !Assets::render_names;
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -134,6 +145,10 @@ void Game::tick() {
                 case sf::Event::MouseButtonPressed:
                     switch (currentEvent.mouseButton.button) {
                         case sf::Mouse::Left:
+                            if (!_defeated_windows.empty()) {
+                                _defeated_windows.pop_back();
+                            }
+
                             if (Mouse::in_window()) {
                                 world::Tile& tile = _world.get_hovered_tile();
                                 auto tile_actor = tile.get_actor();
@@ -232,6 +247,19 @@ void Game::tick() {
                     t.set_highlight(world::Highlight::TEMPORARY);
                 }
             }
+        }
+
+        for (auto p : _faction_statuses) {
+            if (p.second && p.first->get_population() == 0) {
+                _faction_statuses[p.first] = false;
+                ui::FactionDefeated defeated(*p.first);
+                _defeated_windows.push_back(std::move(defeated));
+                _victory_sound.play();
+            }
+        }
+
+        for (auto& a : _defeated_windows) {
+            a.render(_main_window);
         }
 
         for (auto& a : _ui_windows) {

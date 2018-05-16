@@ -56,7 +56,7 @@ void HumanActor::tick() {
     if (is_dead()) {
         return;
     } else if (_health <= 0) {
-        die();
+        die(_damage_inflicter->get_faction());
         while (!_task_queue.empty()) {
             pop_task();
         }
@@ -105,7 +105,7 @@ void HumanActor::render(sf::RenderTarget& target, int x, int y) {
     world::World& world = get_world();
 
     // sf::IntRect tile_rect(x, y, world.get_tile_size(), world.get_tile_size());
-    if (_show_name) {
+    if (_show_name && Assets::render_names) {
         sf::FloatRect bounds = _text.getGlobalBounds();
         _text.setPosition(x - bounds.width / 2 + 5, y - 15);
 
@@ -184,9 +184,10 @@ void HumanActor::pop_task() {
     _task_queue.pop();
 }
 
-int HumanActor::damage(int amount) {
+int HumanActor::damage(int amount, Actor& source) {
     _health -= amount;
     _recent_damage += amount;
+    _damage_inflicter = &source;
 
     return _health;
 }

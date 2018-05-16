@@ -25,7 +25,13 @@ class Faction {
 
     int get_population();
 
+    void defeat(Faction& defeater);
+
+    Faction *get_defeater();
+
   private:
+    Faction *_defeater;
+
     int _population;
 
     std::string _name;

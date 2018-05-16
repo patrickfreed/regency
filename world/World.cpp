@@ -1,4 +1,4 @@
-#include "World.h"
+#include <regency/world/World.h>
 
 #include <chrono>
 #include <iostream>
@@ -9,20 +9,20 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 
-#include "../Assets.h"
-#include "../Mouse.h"
-#include "../entity/Actor.h"
-#include "../entity/HumanActor.h"
-#include "Settlement.h"
+#include <regency/Assets.h>
+#include <regency/Mouse.h>
+#include <regency/entity/Actor.h>
+#include <regency/entity/HumanActor.h>
+#include <regency/world/Settlement.h>
 #include <regency/world/gen/RandomGenerator.h>
-#include <world/util/PathFinder.h>
+#include <regency/world/util/PathFinder.h>
 #include <entity/action/Patrol.h>
 
 #define NUM_FACTIONS 5
 #define NUM_SETTLEMENTS 5
-#define SETTLEMENT_SIZE 30
-#define POPULATION_DIVISOR 90
-#define SCREEN_SCALE static_cast<float>(WINDOW_SIZE) / WORLD_SIZE
+#define SETTLEMENT_SIZE 40
+#define POPULATION_DIVISOR 150
+#define SCREEN_SCALE (static_cast<float>(WINDOW_SIZE) / WORLD_SIZE)
 
 namespace regency {
 namespace world {
@@ -117,13 +117,16 @@ void World::render(sf::RenderWindow& window) {
 
         _tiles.render(window);
         _trees.render(window);
-        _highlights.render(window);
+
+        if (Assets::render_names) {
+            _highlights.render(window);
+        }
 
         _sprites.display();
         sf::Sprite entities{_sprites.getTexture()};
         window.draw(entities);
 
-        if (Mouse::in_window()) {
+        if (Mouse::in_window() && Assets::render_names) {
             Tile& hover = get_hovered_tile();
             sf::Text region_name_text;
             region_name_text.setFont(Assets::font);
@@ -137,6 +140,31 @@ void World::render(sf::RenderWindow& window) {
             region_name_text.setCharacterSize(25);
             region_name_text.setString(hover.get_subregion_name());
             window.draw(region_name_text);
+        }
+
+        if (Assets::render_names) {
+            for (Settlement& s : _settlements) {
+                sf::Text settlment_label;
+
+                auto& bounds = s.get_bounds();
+                Location top_left = {bounds.get_min_x(), std::max(0, bounds.get_min_y())};
+                sf::Vector2i pos = get_vector_from_location(top_left);
+
+                settlment_label.setPosition(pos.x, pos.y);
+                settlment_label.setFont(Assets::font);
+                settlment_label.setFillColor(sf::Color::White);
+
+                if (s.get_faction().friendly()) {
+                    settlment_label.setOutlineColor(sf::Color::Black);
+                } else {
+                    settlment_label.setOutlineColor(sf::Color::Red);
+                }
+                settlment_label.setOutlineThickness(1.0f);
+                settlment_label.setCharacterSize(20);
+                settlment_label.setString(s.get_name());
+
+                window.draw(settlment_label);
+            }
         }
     } else {
         // this->_world_map_sprite.scale(1.0f, 1.0f);
@@ -268,8 +296,8 @@ void World::zoom() {
 
         sf::Vector2i mouse_pos = Mouse::get_mouse_position();
 
-        int left = (mouse_pos.x + _pos.x) / 100 * 100 * get_tile_size();
-        int top = (mouse_pos.y + _pos.y) / 100 * 100 * get_tile_size();
+        int left = static_cast<int>(mouse_pos.x / SCREEN_SCALE) / 100 * 100 * get_tile_size();
+        int top = static_cast<int>(mouse_pos.y / SCREEN_SCALE) / 100 * 100 * get_tile_size();
 
         // int left = _pos.x + max(0, mouse_pos.x - mouse_pos.x % 100) *
         // get_tile_size() *
@@ -461,6 +489,7 @@ void World::generate_settlements() {
 
         if (num_traversable > r.size() / 2 && !north_border.empty() && !south_border.empty() && !east_border.empty() && !west_border.empty()) {
             Settlement settlement(Assets::reserve_name(NameList::SETTLEMENTS), r, _factions[towns]);
+            _factions[towns].add_settlement(settlement.get_name());
             int population = num_traversable / POPULATION_DIVISOR;
 
             std::shuffle(std::begin(traversables), std::end(traversables), gen::RandomGenerator::get_generator());

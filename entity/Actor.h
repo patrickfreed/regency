@@ -38,7 +38,7 @@ class Actor : public Entity {
 
     virtual int get_damage_dealt(Actor& recipient);
 
-    virtual int damage(int amount) = 0;
+    virtual int damage(int amount, Actor &source) = 0;
 
     bool is_hostile(Actor& other);
 
@@ -46,7 +46,7 @@ class Actor : public Entity {
 
     bool is_dead();
 
-    void die();
+    void die(Faction *killer = nullptr);
 
   private:
     sf::Sound _punch;

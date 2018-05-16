@@ -17,8 +17,11 @@ sf::Texture Assets::bones;
 
 sf::SoundBuffer Assets::punch1;
 sf::SoundBuffer Assets::death;
+sf::SoundBuffer Assets::victory;
 
 std::vector<std::vector<std::string>> Assets::_name_lists{};
+
+bool Assets::render_names{true};
 
 const std::vector<std::string> names = {
         "islands.txt",
@@ -58,6 +61,7 @@ void Assets::load_assets() {
 
     punch1.loadFromFile("../res/sound/punch1.ogg");
     death.loadFromFile("../res/sound/death.wav");
+    victory.loadFromFile("../res/sound/victory.wav");
 
     for (int x = 0; x < names.size(); x++) {
         std::vector<std::string> list;

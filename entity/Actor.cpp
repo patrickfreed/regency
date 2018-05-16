@@ -42,7 +42,7 @@ int Actor::attack(Actor& victim) {
 
     if ((current_time - _last_attack).asMilliseconds() >= get_time_per_attack()) {
         int dmg = get_damage_dealt(victim);
-        victim.damage(dmg);
+        victim.damage(dmg, *this);
         _last_attack = Game::get_instance().get_time();
 
         _punch.play();
@@ -77,15 +77,17 @@ bool Actor::is_dead() {
     return !_alive;
 }
 
-void Actor::die() {
+void Actor::die(Faction *killer) {
     if (_alive) {
         _alive = false;
         _death.play();
 
         if (_faction) {
             _faction->decrease_population();
-        } else {
-            std::cout << "no faction" << std::endl;
+
+            if (killer && _faction->get_population() == 0) {
+                _faction->defeat(*killer);
+            }
         }
     }
 }

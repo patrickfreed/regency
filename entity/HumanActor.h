@@ -43,6 +43,7 @@ class HumanActor : public Actor {
     int _hammer;
 
     int _recent_damage;
+    Actor *_damage_inflicter;
 
     bool _show_name;
     std::string _name;
@@ -87,7 +88,7 @@ class HumanActor : public Actor {
 
     int get_damage_dealt(Actor& recipient) override;
 
-    int damage(int amount) override;
+    int damage(int amount, Actor& source) override;
 };
 
 }
