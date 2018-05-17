@@ -16,7 +16,7 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
     }
 
     sf::RectangleShape screen;
-    screen.setPosition(OFFSET / 2.0f, OFFSET / 2.0f);
+    screen.setPosition(OFFSET / 2.0f, OFFSET / 2.0f - 20.0f);
     screen.setSize({WINDOW_SIZE - OFFSET, WINDOW_SIZE - OFFSET});
     screen.setFillColor(sf::Color(73, 73, 68));
     screen.setOutlineColor(sf::Color::Black);
@@ -39,8 +39,8 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
 
     int num = 0;
 
-    float padding = 25;
-    float height = (bounds.height - 200) / _factions->size() - padding;
+    float padding = 10;
+    float height = (bounds.height - 150) / _factions->size() - padding;
     float width = (bounds.width - 100);
     float start = 100;
 
@@ -70,8 +70,9 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
 
         target.draw(name_text);
 
+        float status_vertical = y + 50;
         sf::Text status_text;
-        status_text.setPosition(left_align, y + 75);
+        status_text.setPosition(left_align, status_vertical);
         status_text.setFont(Assets::font);
         status_text.setFillColor(sf::Color::White);
         status_text.setOutlineColor(sf::Color::Black);
@@ -81,7 +82,7 @@ void regency::ui::FactionInfo::render(sf::RenderTarget& target) {
         target.draw(status_text);
 
         auto status_bounds = status_text.getGlobalBounds();
-        status_text.setPosition(status_bounds.left + status_bounds.width + 5, y + 75);
+        status_text.setPosition(status_bounds.left + status_bounds.width + 5, status_vertical);
 
         if (f.get_population() == 0) {
             status_text.setString("Extinct");

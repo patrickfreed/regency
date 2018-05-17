@@ -33,7 +33,7 @@ FactionDefeated::FactionDefeated(entity::Faction& f) : _faction(f) {
             // " by the hands of the " +
             // _faction.get_defeater()->get_name() +
             ", \n\t\tthe " + _faction.get_name() +
-            " \n have been extinguised from these lands.";
+            " \n have been extinguished from these lands.";
 
     _body.setFont(Assets::font);
     _body.setFillColor(sf::Color::White);
